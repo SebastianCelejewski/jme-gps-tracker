@@ -15,7 +15,8 @@ public class DateFormat {
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
         int second = c.get(Calendar.SECOND);
-        return year + "-" + month + "-" + day + "_" + hour + ":" + minute + ":" + second;
+        int millisecond = c.get(Calendar.MILLISECOND);
+        return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second + "." + millisecond;
     }
 
     public static String getFilename(Date date) {
@@ -30,5 +31,4 @@ public class DateFormat {
         int second = c.get(Calendar.SECOND);
         return year + "-" + month + "-" + day + "_" + hour + "-" + minute + "-" + second + ".txt";
     }
-
 }

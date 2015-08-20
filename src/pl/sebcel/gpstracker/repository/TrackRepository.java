@@ -1,8 +1,9 @@
 package pl.sebcel.gpstracker.repository;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Enumeration;
+import java.util.Date;
 import java.util.Vector;
 
 import javax.microedition.io.Connector;
@@ -12,19 +13,16 @@ import javax.microedition.io.file.FileSystemRegistry;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
 import pl.sebcel.gpstracker.utils.DateFormat;
+import pl.sebcel.gpstracker.utils.Logger;
 
 public class TrackRepository {
 
+    private final static Logger log = Logger.getLogger();
+
     public void saveTrack(Track track) {
-        System.out.println("Saving track " + track.getId());
-        Enumeration roots = FileSystemRegistry.listRoots();
-        while (roots.hasMoreElements()) {
-            System.out.println("Root: " + roots.nextElement());
-        }
-
+        log.debug("[TrackRepository] Saving track " + track.getId());
+        Date startTime = new Date();
         String root = (String) FileSystemRegistry.listRoots().nextElement();
-        System.out.println("Root: " + root);
-
         String fileName = DateFormat.getFilename(track.getStartDate());
 
         try {
@@ -42,7 +40,9 @@ public class TrackRepository {
 
             System.out.println("Writing to file");
 
-            PrintStream out = new PrintStream(fconn.openOutputStream());
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+            PrintStream out = new PrintStream(buffer);
 
             out.println("Track " + track.getId());
             out.println("Start date: " + track.getStartDate());
@@ -55,9 +55,19 @@ public class TrackRepository {
 
             System.out.println("Closing file ");
 
+            byte[] data = buffer.toByteArray();
+
+            fconn.openOutputStream().write(data);
+
             fconn.close();
+
+            Date endTime = new Date();
+
+            long duration = endTime.getTime() - startTime.getTime();
+
+            log.debug("[TrackRepository] Track " + track.getId() + " saved (" + points.size() + " points, " + data.length + " bytes, " + duration + " ms)");
         } catch (IOException ioe) {
-            System.out.println("exception = " + ioe);
+            log.debug("[TrackRepository] Failed to save track " + track.getId() + ": " + ioe.getMessage());
         }
     }
 }

@@ -1,17 +1,12 @@
 package pl.sebcel.gpstracker;
 
-import java.io.IOException;
-import java.util.Enumeration;
-
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
-import javax.microedition.io.file.FileSystemRegistry;
 import javax.microedition.lcdui.Display;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
 import pl.sebcel.gpstracker.location.LocationManager;
 import pl.sebcel.gpstracker.repository.TrackRepository;
+import pl.sebcel.gpstracker.utils.Logger;
 
 public class GpsTracker extends MIDlet {
 
@@ -20,9 +15,10 @@ public class GpsTracker extends MIDlet {
     private AppEngine engine;
     private AppModel model;
     private LocationManager locationManager;
+    private Logger log = Logger.getLogger();
 
     public GpsTracker() {
-        
+        log.debug("[GpsTracker] initialization");
         this.display = Display.getDisplay(this);
 
         AppState state = new AppState(AppStatus.UNINITIALIZED, GpsStatus.UNINITIALIZED);
@@ -30,7 +26,7 @@ public class GpsTracker extends MIDlet {
         model = new AppModel(state);
         view = new AppView(model);
         engine = new AppEngine(state, trackRepository);
-        
+
         state.addListener(view);
         view.addListener(engine);
 
@@ -38,15 +34,17 @@ public class GpsTracker extends MIDlet {
     }
 
     protected void startApp() throws MIDletStateChangeException {
-        System.out.println("[StartApp]");
+        log.debug("[GpsTracker] startApp");
         this.display.setCurrent(view);
         engine.init();
         locationManager.start();
     }
 
     protected void destroyApp(boolean arg0) throws MIDletStateChangeException {
+        log.debug("[GpsTracker] destroyApp");
     }
 
     protected void pauseApp() {
+        log.debug("[GpsTracker] pauseApp");
     }
 }
