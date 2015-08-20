@@ -2,8 +2,6 @@ package pl.sebcel.gpstracker;
 
 import java.util.Vector;
 
-import javax.microedition.lcdui.List;
-
 import pl.sebcel.gpstracker.events.AppStateChangeListener;
 
 public class AppState {
@@ -30,7 +28,7 @@ public class AppState {
     public GpsStatus getGpsStatus() {
         return gpsStatus;
     }
-    
+
     public String getInfo() {
         return info;
     }
@@ -44,13 +42,14 @@ public class AppState {
         this.gpsStatus = gpsStatus;
         notifyListeners();
     }
-    
+
     public void setInfo(String info) {
         this.info = info;
         notifyListeners();
     }
 
     private void notifyListeners() {
+        System.out.println(">>>> Notifying listener");
         for (int i = 0; i < listeners.size(); i++) {
             AppStateChangeListener listener = (AppStateChangeListener) listeners.elementAt(i);
             listener.appStateChanged();

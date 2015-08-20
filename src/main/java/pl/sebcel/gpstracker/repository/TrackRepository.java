@@ -4,14 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.Vector;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 
 import pl.sebcel.gpstracker.model.Track;
-import pl.sebcel.gpstracker.model.TrackPoint;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.Logger;
 
@@ -19,11 +17,17 @@ public class TrackRepository {
 
     private final static Logger log = Logger.getLogger();
 
+    private GpxSerializer gpxSerializer;
+
+    public TrackRepository(GpxSerializer gpxSerializer) {
+        this.gpxSerializer = gpxSerializer;
+    }
+
     public void saveTrack(Track track) {
         log.debug("[TrackRepository] Saving track " + track.getId());
         Date startTime = new Date();
         String root = (String) FileSystemRegistry.listRoots().nextElement();
-        String fileName = DateFormat.getFilename(track.getStartDate());
+        String fileName = DateFormat.getFilename(track.getStartDate(), "", "gpx");
 
         try {
             String uri = "file:///" + root + fileName;
@@ -40,18 +44,13 @@ public class TrackRepository {
 
             System.out.println("Writing to file");
 
+            String xml = gpxSerializer.serialize(track);
+
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
             PrintStream out = new PrintStream(buffer);
 
-            out.println("Track " + track.getId());
-            out.println("Start date: " + track.getStartDate());
-
-            Vector points = track.getPoints();
-            for (int i = 0; i < points.size(); i++) {
-                TrackPoint point = (TrackPoint) points.elementAt(i);
-                out.println(DateFormat.format(point.getDateTime()) + ";" + point.getLatitude() + ";" + point.getLongitude());
-            }
+            out.println(xml);
 
             System.out.println("Closing file ");
 
@@ -65,7 +64,7 @@ public class TrackRepository {
 
             long duration = endTime.getTime() - startTime.getTime();
 
-            log.debug("[TrackRepository] Track " + track.getId() + " saved (" + points.size() + " points, " + data.length + " bytes, " + duration + " ms)");
+            log.debug("[TrackRepository] Track " + track.getId() + " saved (" + track.getPoints().size() + " points, " + data.length + " bytes, " + duration + " ms)");
         } catch (IOException ioe) {
             log.debug("[TrackRepository] Failed to save track " + track.getId() + ": " + ioe.getMessage());
         }

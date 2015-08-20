@@ -27,7 +27,7 @@ public class AppView extends Canvas implements AppStateChangeListener {
 
     protected void paint(Graphics g) {
         g.setColor(0, 0, 0);
-        g.fillRect(0, 0, 320, 240);
+        g.fillRect(0, 0, 320, 320);
 
         GpsStatus gpsStatus = model.getAppState().getGpsStatus();
         AppStatus appStatus = model.getAppState().getAppStatus();
@@ -44,10 +44,10 @@ public class AppView extends Canvas implements AppStateChangeListener {
         g.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_LARGE));
         g.drawString("Status: " + appStatus.getDisplayName(), 5, 110, Graphics.TOP | Graphics.LEFT);
         g.drawString("GPS: " + gpsStatus.getDisplayName(), 5, 130, Graphics.TOP | Graphics.LEFT);
-        g.drawString("Info: " + model.getAppState().getInfo(), 5, 150, Graphics.TOP | Graphics.LEFT);
+        g.drawString("Info: " + model.getAppState().getInfo(), 5, 170, Graphics.TOP | Graphics.LEFT);
 
         StatusTransition[] availableTransitions = workflow.getAvailableTransitions(appStatus);
-        int i = 200;
+        int i = 230;
         for (int k = 0; k < availableTransitions.length; k++) {
             g.setColor(255, 255, 255);
             if (k == selectedTransition) {

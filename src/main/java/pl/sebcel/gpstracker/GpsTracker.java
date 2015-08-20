@@ -5,6 +5,7 @@ import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
 import pl.sebcel.gpstracker.location.LocationManager;
+import pl.sebcel.gpstracker.repository.GpxSerializer;
 import pl.sebcel.gpstracker.repository.TrackRepository;
 import pl.sebcel.gpstracker.utils.Logger;
 
@@ -22,7 +23,8 @@ public class GpsTracker extends MIDlet {
         this.display = Display.getDisplay(this);
 
         AppState state = new AppState(AppStatus.UNINITIALIZED, GpsStatus.UNINITIALIZED);
-        TrackRepository trackRepository = new TrackRepository();
+        GpxSerializer gpxSerializer = new GpxSerializer();
+        TrackRepository trackRepository = new TrackRepository(gpxSerializer);
         model = new AppModel(state);
         view = new AppView(model);
         engine = new AppEngine(state, trackRepository);
