@@ -1,0 +1,37 @@
+package pl.sebcel.gpstracker;
+
+public class AppStatus {
+
+    public static AppStatus UNINITIALIZED = new AppStatus(0, "Uninitialized", new AppColor(255, 255, 255, false));
+    public static AppStatus READY = new AppStatus(1, "Ready", new AppColor(0, 255, 0, false));
+    public static AppStatus STARTED = new AppStatus(2, "Started", new AppColor(255, 0, 0, false));
+    public static AppStatus STOPPED = new AppStatus(3, "Stopped", new AppColor(0, 0, 255, false));
+    public static AppStatus PAUSED = new AppStatus(4, "Paused", new AppColor(255, 255, 0, false));
+    public static AppStatus WAITING_FOR_GPS = new AppStatus(5, "Waiting for GPS", new AppColor(0, 255, 0, true));
+
+    private int id;
+    private String displayName;
+    private AppColor color;
+
+    private AppStatus(int id, String displayName, AppColor color) {
+        this.id = id;
+        this.displayName = displayName;
+        this.color = color;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public AppColor getColor() {
+        return color;
+    }
+
+    public int hashCode() {
+        return 5;
+    }
+
+    public boolean equals(Object obj) {
+        return this.id == ((AppStatus) obj).id;
+    }
+}
