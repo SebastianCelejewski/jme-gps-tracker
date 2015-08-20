@@ -3,6 +3,8 @@ package pl.sebcel.gpstracker;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.microedition.lcdui.AlertType;
+import javax.microedition.lcdui.Display;
 import javax.microedition.location.Location;
 import javax.microedition.location.LocationListener;
 import javax.microedition.location.LocationProvider;
@@ -20,12 +22,14 @@ public class AppEngine implements UserActionListener, LocationListener {
     private Track currentTrack;
     private TrackRepository trackRepository;
     private Thread autosaveThread;
+    private Display display;
 
     private static final Logger log = Logger.getLogger();
 
-    public AppEngine(AppState appState, TrackRepository trackRepository) {
+    public AppEngine(AppState appState, Display display, TrackRepository trackRepository) {
         this.appState = appState;
         this.trackRepository = trackRepository;
+        this.display = display;
     }
 
     public void init() {
@@ -53,8 +57,11 @@ public class AppEngine implements UserActionListener, LocationListener {
                 while (appState.getAppStatus().equals(AppStatus.STARTED) && currentTrack != null) {
                     try {
                         appState.setInfo("Saving");
+                        AlertType.WARNING.playSound(display);
                         trackRepository.saveTrack(currentTrack);
                         appState.setInfo("Saved");
+                        AlertType.WARNING.playSound(display);
+                        AlertType.WARNING.playSound(display);
                         Thread.sleep(10000);
                     } catch (Exception ex) {
                         System.err.println("Failed to save track: " + ex.getMessage());
@@ -103,6 +110,7 @@ public class AppEngine implements UserActionListener, LocationListener {
 
     public void userSwitchedTo(StatusTransition statusTransition) {
         System.out.println("Switching to " + statusTransition.getTargetStatus().getDisplayName() + " upon " + statusTransition.getName());
+        AlertType.CONFIRMATION.playSound(display);
         if (statusTransition.equals(AppWorkflow.START)) {
             start();
         }
@@ -116,6 +124,7 @@ public class AppEngine implements UserActionListener, LocationListener {
 
     public void locationUpdated(LocationProvider provider, Location location) {
         if (currentTrack != null) {
+            AlertType.INFO.playSound(display);
             QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
             double latitude = coordinates.getLatitude();
             double longitude = coordinates.getLongitude();

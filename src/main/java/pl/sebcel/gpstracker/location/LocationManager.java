@@ -1,5 +1,9 @@
 package pl.sebcel.gpstracker.location;
 
+import java.util.Date;
+
+import javax.microedition.lcdui.AlertType;
+import javax.microedition.lcdui.Display;
 import javax.microedition.location.Criteria;
 import javax.microedition.location.Location;
 import javax.microedition.location.LocationListener;
@@ -16,11 +20,13 @@ public class LocationManager {
     private boolean alreadyStarted = false;
     private LocationListener locationListener;
     private Logger log = Logger.getLogger();
+    private Display display;
 
-    public LocationManager(AppState appState, LocationListener locationListener) {
+    public LocationManager(AppState appState, Display display, LocationListener locationListener) {
         log.debug("[LocationManager] initialization");
         this.appState = appState;
         this.locationListener = locationListener;
+        this.display = display;
     }
 
     public void start() {
@@ -36,6 +42,7 @@ public class LocationManager {
             public void run() {
 
                 boolean locationFound = false;
+                Date startDate = new Date();
                 while (!locationFound) {
 
                     try {
@@ -44,10 +51,16 @@ public class LocationManager {
                         locationProvider = LocationProvider.getInstance(cr);
                         locationProvider.setLocationListener(locationListener, -1, -1, -1);
                         Location location = locationProvider.getLocation(60);
-                        log.debug("[LocationManager] location found");
+                        Date endDate = new Date();
+                        long duration = (endDate.getTime() - startDate.getTime()) / 1000;
+                        log.debug("[LocationManager] location found (" + duration + " seconds)");
                         appState.setGpsStatus(GpsStatus.OK);
                         locationListener.locationUpdated(locationProvider, location);
                         locationFound = true;
+                        AlertType.INFO.playSound(display);
+                        AlertType.INFO.playSound(display);
+                        AlertType.INFO.playSound(display);
+                        AlertType.INFO.playSound(display);
                     } catch (Exception ex) {
                         log.debug("[LocationManager] failed to obtain location: " + ex.getMessage());
                         try {

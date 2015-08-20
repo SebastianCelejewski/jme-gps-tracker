@@ -50,6 +50,6 @@ public class DateFormat {
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
         int second = c.get(Calendar.SECOND);
-        return year + "-" + month + "-" + day + "_" + hour + "-" + minute + "-" + second + suffix + "." + extension;
+        return d4(year) + "-" + d2(month) + "-" + d2(day) + "_" + d2(hour) + "-" + d2(minute) + "-" + d2(second) + suffix + "." + extension;
     }
 }

@@ -13,7 +13,7 @@ public class AppWorkflow {
 
     public StatusTransition[] getAvailableTransitions(AppStatus currentStatus) {
         if (currentStatus.equals(AppStatus.READY)) {
-            return new StatusTransition[] { START, START_WHEN_READY };
+            return new StatusTransition[] { START };
         }
         if (currentStatus.equals(AppStatus.STARTED)) {
             return new StatusTransition[] { PAUSE, STOP };

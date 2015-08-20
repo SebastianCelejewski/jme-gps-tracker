@@ -27,12 +27,12 @@ public class GpsTracker extends MIDlet {
         TrackRepository trackRepository = new TrackRepository(gpxSerializer);
         model = new AppModel(state);
         view = new AppView(model);
-        engine = new AppEngine(state, trackRepository);
+        engine = new AppEngine(state, display, trackRepository);
 
         state.addListener(view);
         view.addListener(engine);
 
-        locationManager = new LocationManager(state, engine);
+        locationManager = new LocationManager(state, display, engine);
     }
 
     protected void startApp() throws MIDletStateChangeException {
