@@ -23,14 +23,14 @@ public class LocationManager {
     private Display display;
 
     public LocationManager(AppState appState, Display display, LocationListener locationListener) {
-        log.debug("[LocationManager] initialization");
+        log.debug("[LocationManager] Initialization");
         this.appState = appState;
         this.locationListener = locationListener;
         this.display = display;
     }
 
     public void start() {
-        log.debug("[LocationManager] starting");
+        log.debug("[LocationManager] Starting");
         if (alreadyStarted) {
             return;
         }
@@ -46,14 +46,14 @@ public class LocationManager {
                 while (!locationFound) {
 
                     try {
-                        log.debug("[LocationManager] looking for location");
+                        log.debug("[LocationManager] Trying to find location");
                         appState.setGpsStatus(GpsStatus.LOCATING);
                         locationProvider = LocationProvider.getInstance(cr);
                         locationProvider.setLocationListener(locationListener, -1, -1, -1);
                         Location location = locationProvider.getLocation(60);
                         Date endDate = new Date();
                         long duration = (endDate.getTime() - startDate.getTime()) / 1000;
-                        log.debug("[LocationManager] location found (" + duration + " seconds)");
+                        log.debug("[LocationManager] Location found (" + duration + " seconds)");
                         appState.setGpsStatus(GpsStatus.OK);
                         locationListener.locationUpdated(locationProvider, location);
                         locationFound = true;
@@ -62,7 +62,7 @@ public class LocationManager {
                         AlertType.INFO.playSound(display);
                         AlertType.INFO.playSound(display);
                     } catch (Exception ex) {
-                        log.debug("[LocationManager] failed to obtain location: " + ex.getMessage());
+                        log.debug("[LocationManager] Failed to find location: " + ex.getMessage());
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
