@@ -3,6 +3,7 @@ package pl.sebcel.gpstracker;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.Vector;
 
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Display;
@@ -27,6 +28,7 @@ public class AppEngine implements UserActionListener, LocationListener {
     private Display display;
     private static long idGenerator = 0;
     private long id = 0;
+    private Vector currentTrackPoints;
 
     private static final Logger log = Logger.getLogger();
 
@@ -47,12 +49,7 @@ public class AppEngine implements UserActionListener, LocationListener {
                 while (true) {
                     if (appState.getAppStatus().equals(AppStatus.STARTED) && currentTrack != null) {
                         log.debug("[AppEngine " + id + "] Triggering track auto saving");
-                        appState.setInfo("Saving");
-                        AlertType.WARNING.playSound(display);
-                        trackRepository.saveTrack(currentTrack);
-                        AlertType.WARNING.playSound(display);
-                        AlertType.WARNING.playSound(display);
-                        appState.setInfo("Saved");
+                        save();
                     }
                     try {
                         Thread.sleep(10000);
@@ -70,7 +67,9 @@ public class AppEngine implements UserActionListener, LocationListener {
         log.debug("[AppEngine " + id + "] Starting recording of a new track");
         Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         String trackId = DateFormat.format(currentDate.getTime());
+        currentTrackPoints = new Vector();
         currentTrack = new Track(trackId, new Date());
+        trackRepository.createNewTrack(currentTrack);
 
         System.out.println("Started recording track " + currentTrack.getId());
         appState.setAppStatus(AppStatus.STARTED);
@@ -79,10 +78,28 @@ public class AppEngine implements UserActionListener, LocationListener {
 
     private void stop() {
         log.debug("[AppEngine " + id + "] Stopping track recording");
+        appState.setAppStatus(AppStatus.STOPPING);
+
+        save();
+
+        appState.setInfo("Exporting track to GPX");
         trackRepository.saveTrack(currentTrack);
         currentTrack = null;
         appState.setAppStatus(AppStatus.STOPPED);
+        appState.setInfo("Track exported to GPX");
         log.debug("[AppEngine " + id + "] Track recording stopped");
+    }
+
+    private void save() {
+        appState.setInfo("Saving track");
+        AlertType.WARNING.playSound(display);
+        synchronized (currentTrack) {
+            trackRepository.appendTrackPoints(currentTrack, currentTrackPoints);
+            currentTrackPoints = new Vector();
+        }
+        AlertType.WARNING.playSound(display);
+        AlertType.WARNING.playSound(display);
+        appState.setInfo("Track saved");
     }
 
     private void recordNew() {
@@ -111,12 +128,18 @@ public class AppEngine implements UserActionListener, LocationListener {
                 QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
                 double latitude = coordinates.getLatitude();
                 double longitude = coordinates.getLongitude();
+                double altitude = coordinates.getAltitude();
+                double horizontalAccuracy = coordinates.getHorizontalAccuracy();
+                double verticalAccuracy = coordinates.getVerticalAccuracy();
 
-                log.debug("[AppEngine " + id + "] Location information arrived: " + latitude + ";" + longitude + ";" + coordinates.getAltitude() + ";" + coordinates.getHorizontalAccuracy() + ";" + coordinates.getVerticalAccuracy());
+                log.debug("[AppEngine " + id + "] Location information arrived: " + latitude + ";" + longitude + ";" + altitude + ";" + horizontalAccuracy + ";" + verticalAccuracy);
 
                 Date dateTime = new Date();
-                TrackPoint point = new TrackPoint(dateTime, latitude, longitude);
-                currentTrack.addPoint(point);
+                TrackPoint point = new TrackPoint(dateTime, latitude, longitude, altitude, horizontalAccuracy, verticalAccuracy);
+                synchronized (currentTrack) {
+                    currentTrack.addPoint(point);
+                    currentTrackPoints.addElement(point);
+                }
                 appState.setInfo("" + currentTrack.getPoints().size());
             } catch (Exception ex) {
                 log.debug("[AppEngine " + id + "] Failed to handle location update: " + ex.getMessage());
