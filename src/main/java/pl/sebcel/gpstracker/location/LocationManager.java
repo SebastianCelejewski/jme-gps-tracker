@@ -50,7 +50,7 @@ public class LocationManager {
                         appState.setGpsStatus(GpsStatus.LOCATING);
                         locationProvider = LocationProvider.getInstance(cr);
                         locationProvider.setLocationListener(locationListener, -1, -1, -1);
-                        Location location = locationProvider.getLocation(60);
+                        Location location = locationProvider.getLocation(600);
                         Date endDate = new Date();
                         long duration = (endDate.getTime() - startDate.getTime()) / 1000;
                         log.debug("[LocationManager] Location found (" + duration + " seconds)");
