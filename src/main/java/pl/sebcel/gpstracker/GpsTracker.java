@@ -16,6 +16,15 @@ import pl.sebcel.gpstracker.state.AppStatus;
 import pl.sebcel.gpstracker.state.GpsStatus;
 import pl.sebcel.gpstracker.utils.Logger;
 
+/**
+ * Application entry point
+ * 
+ * <p>
+ * Initializes all components and handles MIDlet lifecycle.
+ * </p>
+ * 
+ * @author Sebastian Celejewski
+ */
 public class GpsTracker extends MIDlet {
 
     private Display display;

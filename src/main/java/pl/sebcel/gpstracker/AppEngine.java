@@ -25,6 +25,15 @@ import pl.sebcel.gpstracker.utils.Logger;
 import pl.sebcel.gpstracker.workflow.AppWorkflow;
 import pl.sebcel.gpstracker.workflow.StatusTransition;
 
+/**
+ * Tracker engine
+ * 
+ * <p>
+ * Handles application lifecycle, controls location updates and autosave thread.
+ * </p>
+ * 
+ * @author Sebastian Celejewski
+ */
 public class AppEngine implements UserActionListener, LocationListener {
 
     private static final Logger log = Logger.getLogger();
