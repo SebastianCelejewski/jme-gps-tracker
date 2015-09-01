@@ -49,7 +49,6 @@ public class AppState {
     }
 
     private void notifyListeners() {
-        System.out.println(">>>> Notifying listener");
         for (int i = 0; i < listeners.size(); i++) {
             AppStateChangeListener listener = (AppStateChangeListener) listeners.elementAt(i);
             listener.appStateChanged();
