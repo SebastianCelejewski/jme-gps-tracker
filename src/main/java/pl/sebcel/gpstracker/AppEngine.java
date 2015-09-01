@@ -107,6 +107,20 @@ public class AppEngine implements UserActionListener, LocationListener {
         appState.setInfo("Track saved");
     }
 
+    private void pause() {
+        log.debug("[AppEngine] Pausing");
+        appState.setAppStatus(AppStatus.PAUSED);
+        appState.setInfo("Paused");
+        log.debug("[AppEngine] Paused");
+    }
+
+    private void resume() {
+        log.debug("[AppEngine] Resuming");
+        appState.setAppStatus(AppStatus.STARTED);
+        appState.setInfo("Resumed");
+        log.debug("[AppEngine] Resumed");
+    }
+
     private void recordNew() {
         appState.setAppStatus(AppStatus.READY);
     }
@@ -124,10 +138,16 @@ public class AppEngine implements UserActionListener, LocationListener {
         if (statusTransition.equals(AppWorkflow.NEW)) {
             recordNew();
         }
+        if (statusTransition.equals(AppWorkflow.PAUSE)) {
+            pause();
+        }
+        if (statusTransition.equals(AppWorkflow.RESUME)) {
+            resume();
+        }
     }
 
     public void locationUpdated(LocationProvider provider, Location location) {
-        if (currentTrack != null) {
+        if (currentTrack != null && appState.getAppStatus().equals(AppStatus.STARTED)) {
             try {
                 AlertType.INFO.playSound(display);
                 QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
@@ -150,7 +170,7 @@ public class AppEngine implements UserActionListener, LocationListener {
                 log.debug("[AppEngine " + id + "] Failed to handle location update: " + ex.getMessage());
             }
         } else {
-            log.debug("[AppEngine " + id + "] Location information arrived but is ignored, because currentTrack is null. Current status: " + appState.getAppStatus().getDisplayName());
+            log.debug("[AppEngine " + id + "] Location information arrived but is ignored. CurrentTrack: " + currentTrack + ", current status: " + appState.getAppStatus().getDisplayName());
         }
     }
 
