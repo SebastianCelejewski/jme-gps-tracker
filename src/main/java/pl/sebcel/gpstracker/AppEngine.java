@@ -36,7 +36,7 @@ import pl.sebcel.gpstracker.workflow.StatusTransition;
  */
 public class AppEngine implements UserActionListener, LocationListener {
 
-    private static final Logger log = Logger.getLogger();
+    private final Logger log = Logger.getLogger();
 
     private AppState appState;
     private Track currentTrack;
@@ -60,7 +60,7 @@ public class AppEngine implements UserActionListener, LocationListener {
             log.debug("[AppEngine] Already initialized");
             return;
         }
-        alreadyInitialized = true;
+//        alreadyInitialized = true;
 
         appState.setAppStatus(AppStatus.READY);
 

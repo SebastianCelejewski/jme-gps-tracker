@@ -18,7 +18,7 @@ import pl.sebcel.gpstracker.utils.Logger;
 
 public class TrackRepository {
 
-    private final static Logger log = Logger.getLogger();
+    private final Logger log = Logger.getLogger();
 
     private GpxSerializer gpxSerializer;
     private Hashtable writers = new Hashtable();

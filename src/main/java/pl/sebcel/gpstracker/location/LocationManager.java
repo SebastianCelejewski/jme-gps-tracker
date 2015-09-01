@@ -16,7 +16,7 @@ import pl.sebcel.gpstracker.utils.Logger;
 
 public class LocationManager {
 
-    private final static Logger log = Logger.getLogger();
+    private final Logger log = Logger.getLogger();
 
     private AppState appState;
     private LocationProvider locationProvider;
