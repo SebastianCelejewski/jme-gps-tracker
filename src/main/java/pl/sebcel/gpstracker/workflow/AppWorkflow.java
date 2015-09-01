@@ -11,7 +11,6 @@ public class AppWorkflow {
     public static final StatusTransition RESUME = new StatusTransition(4, "Resume", AppStatus.STARTED);
     public static final StatusTransition STOP = new StatusTransition(5, "Stop", AppStatus.STOPPED);
     public static final StatusTransition ABORT = new StatusTransition(6, "Abort", AppStatus.READY);
-    public static final StatusTransition START_WHEN_READY = new StatusTransition(7, "Start when ready", AppStatus.WAITING_FOR_GPS);
 
     public StatusTransition[] getAvailableTransitions(AppStatus currentStatus) {
         if (currentStatus.equals(AppStatus.READY)) {
@@ -25,9 +24,6 @@ public class AppWorkflow {
         }
         if (currentStatus.equals(AppStatus.STOPPED)) {
             return new StatusTransition[] { NEW };
-        }
-        if (currentStatus.equals(AppStatus.WAITING_FOR_GPS)) {
-            return new StatusTransition[] { ABORT };
         }
         return new StatusTransition[] {};
     }
