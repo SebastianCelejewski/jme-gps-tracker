@@ -60,7 +60,7 @@ public class AppEngine implements UserActionListener, LocationListener {
             log.debug("[AppEngine] Already initialized");
             return;
         }
-//        alreadyInitialized = true;
+        alreadyInitialized = true;
 
         appState.setAppStatus(AppStatus.READY);
 
