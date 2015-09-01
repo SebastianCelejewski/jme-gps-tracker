@@ -9,6 +9,7 @@ import javax.microedition.location.Location;
 import javax.microedition.location.LocationListener;
 import javax.microedition.location.LocationProvider;
 
+import pl.sebcel.gpstracker.config.Configuration;
 import pl.sebcel.gpstracker.state.AppState;
 import pl.sebcel.gpstracker.state.GpsStatus;
 import pl.sebcel.gpstracker.utils.Logger;
@@ -21,12 +22,14 @@ public class LocationManager {
     private LocationListener locationListener;
     private Logger log = Logger.getLogger();
     private Display display;
+    private Configuration config;
 
-    public LocationManager(AppState appState, Display display, LocationListener locationListener) {
+    public LocationManager(AppState appState, Configuration config, Display display, LocationListener locationListener) {
         log.debug("[LocationManager] Initialization");
         this.appState = appState;
         this.locationListener = locationListener;
         this.display = display;
+        this.config = config;
     }
 
     public void start() {

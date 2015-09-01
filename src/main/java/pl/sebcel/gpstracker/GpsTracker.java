@@ -4,6 +4,8 @@ import javax.microedition.lcdui.Display;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
+import pl.sebcel.gpstracker.config.Configuration;
+import pl.sebcel.gpstracker.config.ConfigurationProvider;
 import pl.sebcel.gpstracker.gui.AppModel;
 import pl.sebcel.gpstracker.gui.AppView;
 import pl.sebcel.gpstracker.location.LocationManager;
@@ -27,17 +29,19 @@ public class GpsTracker extends MIDlet {
         log.debug("[GpsTracker] initialization");
         this.display = Display.getDisplay(this);
 
+        ConfigurationProvider configurationProvider = new ConfigurationProvider();
+        Configuration config = configurationProvider.getConfiguration();
         AppState state = new AppState(AppStatus.UNINITIALIZED, GpsStatus.UNINITIALIZED);
         GpxSerializer gpxSerializer = new GpxSerializer();
         TrackRepository trackRepository = new TrackRepository(gpxSerializer);
         model = new AppModel(state);
         view = new AppView(model);
-        engine = new AppEngine(state, display, trackRepository);
+        engine = new AppEngine(state, config, display, trackRepository);
 
         state.addListener(view);
         view.addListener(engine);
 
-        locationManager = new LocationManager(state, display, engine);
+        locationManager = new LocationManager(state, config, display, engine);
     }
 
     protected void startApp() throws MIDletStateChangeException {

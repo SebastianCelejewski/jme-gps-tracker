@@ -12,6 +12,7 @@ import javax.microedition.location.LocationListener;
 import javax.microedition.location.LocationProvider;
 import javax.microedition.location.QualifiedCoordinates;
 
+import pl.sebcel.gpstracker.config.Configuration;
 import pl.sebcel.gpstracker.events.UserActionListener;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
@@ -34,13 +35,15 @@ public class AppEngine implements UserActionListener, LocationListener {
     private static long idGenerator = 0;
     private long id = 0;
     private Vector currentTrackPoints;
+    private Configuration config;
 
     private static final Logger log = Logger.getLogger();
 
-    public AppEngine(AppState appState, Display display, TrackRepository trackRepository) {
+    public AppEngine(AppState appState, Configuration config, Display display, TrackRepository trackRepository) {
         this.appState = appState;
         this.trackRepository = trackRepository;
         this.display = display;
+        this.config = config;
         id = idGenerator++;
     }
 
