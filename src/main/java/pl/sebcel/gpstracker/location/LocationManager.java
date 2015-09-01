@@ -39,7 +39,7 @@ public class LocationManager {
         }
         alreadyStarted = true;
         final Criteria cr = new Criteria();
-        cr.setHorizontalAccuracy(500);
+        cr.setHorizontalAccuracy(config.getGpsHorizontalAccuracy());
         new Thread(new Runnable() {
 
             public void run() {
@@ -52,8 +52,8 @@ public class LocationManager {
                         log.debug("[LocationManager] Trying to find location");
                         appState.setGpsStatus(GpsStatus.LOCATING);
                         locationProvider = LocationProvider.getInstance(cr);
-                        locationProvider.setLocationListener(locationListener, -1, -1, -1);
-                        Location location = locationProvider.getLocation(600);
+                        locationProvider.setLocationListener(locationListener, config.getLocationInterval(), -1, -1);
+                        Location location = locationProvider.getLocation(config.getGpsLocationFindTimeout());
                         Date endDate = new Date();
                         long duration = (endDate.getTime() - startDate.getTime()) / 1000;
                         log.debug("[LocationManager] Location found (" + duration + " seconds)");
@@ -61,13 +61,10 @@ public class LocationManager {
                         locationListener.locationUpdated(locationProvider, location);
                         locationFound = true;
                         AlertType.INFO.playSound(display);
-                        AlertType.INFO.playSound(display);
-                        AlertType.INFO.playSound(display);
-                        AlertType.INFO.playSound(display);
                     } catch (Exception ex) {
                         log.debug("[LocationManager] Failed to find location: " + ex.getMessage());
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(config.getGpsLocationFindRetryDelay() * 1000);
                         } catch (InterruptedException e) {
 
                         }

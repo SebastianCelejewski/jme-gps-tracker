@@ -60,7 +60,7 @@ public class AppEngine implements UserActionListener, LocationListener {
                         save();
                     }
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(config.getSaveInterval() * 1000);
                     } catch (Exception ex) {
                     }
                 }
