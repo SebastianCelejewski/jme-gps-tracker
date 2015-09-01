@@ -1,4 +1,4 @@
-package pl.sebcel.gpstracker;
+package pl.sebcel.gpstracker.gui;
 
 import java.util.Vector;
 
@@ -6,8 +6,13 @@ import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
+import pl.sebcel.gpstracker.AppColor;
 import pl.sebcel.gpstracker.events.AppStateChangeListener;
 import pl.sebcel.gpstracker.events.UserActionListener;
+import pl.sebcel.gpstracker.state.AppStatus;
+import pl.sebcel.gpstracker.state.GpsStatus;
+import pl.sebcel.gpstracker.workflow.AppWorkflow;
+import pl.sebcel.gpstracker.workflow.StatusTransition;
 
 public class AppView extends Canvas implements AppStateChangeListener {
 

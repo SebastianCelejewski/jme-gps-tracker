@@ -1,4 +1,6 @@
-package pl.sebcel.gpstracker;
+package pl.sebcel.gpstracker.workflow;
+
+import pl.sebcel.gpstracker.state.AppStatus;
 
 public class StatusTransition {
 

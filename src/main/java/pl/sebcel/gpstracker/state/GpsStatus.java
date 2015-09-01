@@ -1,4 +1,6 @@
-package pl.sebcel.gpstracker;
+package pl.sebcel.gpstracker.state;
+
+import pl.sebcel.gpstracker.AppColor;
 
 public class GpsStatus {
 

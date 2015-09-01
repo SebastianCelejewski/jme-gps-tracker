@@ -16,8 +16,13 @@ import pl.sebcel.gpstracker.events.UserActionListener;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
 import pl.sebcel.gpstracker.repository.TrackRepository;
+import pl.sebcel.gpstracker.state.AppState;
+import pl.sebcel.gpstracker.state.AppStatus;
+import pl.sebcel.gpstracker.state.GpsStatus;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.Logger;
+import pl.sebcel.gpstracker.workflow.AppWorkflow;
+import pl.sebcel.gpstracker.workflow.StatusTransition;
 
 public class AppEngine implements UserActionListener, LocationListener {
 

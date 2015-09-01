@@ -4,9 +4,14 @@ import javax.microedition.lcdui.Display;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
+import pl.sebcel.gpstracker.gui.AppModel;
+import pl.sebcel.gpstracker.gui.AppView;
 import pl.sebcel.gpstracker.location.LocationManager;
 import pl.sebcel.gpstracker.repository.GpxSerializer;
 import pl.sebcel.gpstracker.repository.TrackRepository;
+import pl.sebcel.gpstracker.state.AppState;
+import pl.sebcel.gpstracker.state.AppStatus;
+import pl.sebcel.gpstracker.state.GpsStatus;
 import pl.sebcel.gpstracker.utils.Logger;
 
 public class GpsTracker extends MIDlet {

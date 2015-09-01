@@ -1,4 +1,6 @@
-package pl.sebcel.gpstracker;
+package pl.sebcel.gpstracker.gui;
+
+import pl.sebcel.gpstracker.state.AppState;
 
 public class AppModel {
 

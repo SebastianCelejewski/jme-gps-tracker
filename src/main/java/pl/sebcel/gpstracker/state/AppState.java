@@ -1,4 +1,4 @@
-package pl.sebcel.gpstracker;
+package pl.sebcel.gpstracker.state;
 
 import java.util.Vector;
 

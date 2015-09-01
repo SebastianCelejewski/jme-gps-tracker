@@ -9,8 +9,8 @@ import javax.microedition.location.Location;
 import javax.microedition.location.LocationListener;
 import javax.microedition.location.LocationProvider;
 
-import pl.sebcel.gpstracker.AppState;
-import pl.sebcel.gpstracker.GpsStatus;
+import pl.sebcel.gpstracker.state.AppState;
+import pl.sebcel.gpstracker.state.GpsStatus;
 import pl.sebcel.gpstracker.utils.Logger;
 
 public class LocationManager {
