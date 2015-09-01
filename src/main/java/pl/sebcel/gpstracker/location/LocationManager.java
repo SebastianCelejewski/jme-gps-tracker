@@ -53,7 +53,16 @@ public class LocationManager {
                         log.debug("[LocationManager] Trying to find location");
                         appState.setGpsStatus(GpsStatus.LOCATING);
                         locationProvider = LocationProvider.getInstance(cr);
-                        locationProvider.setLocationListener(locationListener, config.getLocationInterval(), -1, -1);
+                        if (locationProvider == null) {
+                            log.debug("[LocationManager] Location provider not found.");
+                            appState.setGpsStatus(GpsStatus.NOT_AVAILABLE);
+                            break;
+                        }
+                        
+                        log.debug("[LocationManager] LocationProvider found. " + locationProvider.getClass());
+                        log.debug("[LocationManager] Config: "+config.toString());
+                        locationProvider.setLocationListener(locationListener, config.getLocationInterval(), config.getLocationInterval(), config.getLocationInterval());
+                        log.debug("[LocationManager] Location listener set");
                         Location location = locationProvider.getLocation(config.getGpsLocationFindTimeout());
                         Date endDate = new Date();
                         long duration = (endDate.getTime() - startDate.getTime()) / 1000;
@@ -63,7 +72,7 @@ public class LocationManager {
                         locationFound = true;
                         AlertType.INFO.playSound(display);
                     } catch (Exception ex) {
-                        log.debug("[LocationManager] Failed to find location: " + ex.getMessage());
+                        log.debug("[LocationManager] Failed to find location: " + ex.getClass() + ", " + ex.getMessage());
                         try {
                             Thread.sleep(config.getGpsLocationFindRetryDelay() * 1000);
                         } catch (InterruptedException e) {
