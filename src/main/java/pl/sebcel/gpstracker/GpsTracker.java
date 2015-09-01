@@ -27,12 +27,13 @@ import pl.sebcel.gpstracker.utils.Logger;
  */
 public class GpsTracker extends MIDlet {
 
+    private final static Logger log = Logger.getLogger();
+
     private Display display;
     private AppView view;
     private AppEngine engine;
     private AppModel model;
     private LocationManager locationManager;
-    private Logger log = Logger.getLogger();
 
     public GpsTracker() {
         log.debug("[GpsTracker] initialization");

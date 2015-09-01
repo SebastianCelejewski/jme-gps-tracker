@@ -16,11 +16,12 @@ import pl.sebcel.gpstracker.utils.Logger;
 
 public class LocationManager {
 
+    private final static Logger log = Logger.getLogger();
+
     private AppState appState;
     private LocationProvider locationProvider;
     private boolean alreadyStarted = false;
     private LocationListener locationListener;
-    private Logger log = Logger.getLogger();
     private Display display;
     private Configuration config;
 
@@ -66,7 +67,7 @@ public class LocationManager {
                         try {
                             Thread.sleep(config.getGpsLocationFindRetryDelay() * 1000);
                         } catch (InterruptedException e) {
-
+                            // intentional
                         }
                     }
                 }
