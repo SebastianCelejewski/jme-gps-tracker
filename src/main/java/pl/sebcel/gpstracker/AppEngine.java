@@ -32,8 +32,6 @@ public class AppEngine implements UserActionListener, LocationListener {
     private TrackRepository trackRepository;
     private Thread autosaveThread;
     private Display display;
-    private static long idGenerator = 0;
-    private long id = 0;
     private Vector currentTrackPoints;
     private Configuration config;
 
@@ -44,11 +42,10 @@ public class AppEngine implements UserActionListener, LocationListener {
         this.trackRepository = trackRepository;
         this.display = display;
         this.config = config;
-        id = idGenerator++;
     }
 
     public void init() {
-        log.debug("[AppEngine " + id + "] Initialization");
+        log.debug("[AppEngine] Initialization");
         appState.setAppStatus(AppStatus.READY);
 
         autosaveThread = new Thread(new Runnable() {
@@ -56,7 +53,7 @@ public class AppEngine implements UserActionListener, LocationListener {
             public void run() {
                 while (true) {
                     if (appState.getAppStatus().equals(AppStatus.STARTED) && currentTrack != null) {
-                        log.debug("[AppEngine " + id + "] Triggering track auto saving");
+                        log.debug("[AppEngine] Triggering track auto saving");
                         save();
                     }
                     try {
@@ -67,12 +64,12 @@ public class AppEngine implements UserActionListener, LocationListener {
             }
         });
 
-        log.debug("[AppEngine " + id + "] Starting autosave thread");
+        log.debug("[AppEngine] Starting autosave thread");
         autosaveThread.start();
     }
 
     private void start() {
-        log.debug("[AppEngine " + id + "] Starting recording of a new track");
+        log.debug("[AppEngine] Starting recording of a new track");
         Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         String trackId = DateFormat.format(currentDate.getTime());
         currentTrackPoints = new Vector();
@@ -81,11 +78,11 @@ public class AppEngine implements UserActionListener, LocationListener {
 
         System.out.println("Started recording track " + currentTrack.getId());
         appState.setAppStatus(AppStatus.STARTED);
-        log.debug("[AppEngine " + id + "] Track recording started");
+        log.debug("[AppEngine] Track recording started");
     }
 
     private void stop() {
-        log.debug("[AppEngine " + id + "] Stopping track recording");
+        log.debug("[AppEngine] Stopping track recording");
         appState.setAppStatus(AppStatus.STOPPING);
 
         save();
@@ -95,7 +92,7 @@ public class AppEngine implements UserActionListener, LocationListener {
         currentTrack = null;
         appState.setAppStatus(AppStatus.STOPPED);
         appState.setInfo("Track exported to GPX");
-        log.debug("[AppEngine " + id + "] Track recording stopped");
+        log.debug("[AppEngine] Track recording stopped");
     }
 
     private void save() {
@@ -130,7 +127,7 @@ public class AppEngine implements UserActionListener, LocationListener {
 
     public void userSwitchedTo(StatusTransition statusTransition) {
         System.out.println("Switching to " + statusTransition.getTargetStatus().getDisplayName() + " upon " + statusTransition.getName());
-        log.debug("[AppEngine " + id + "] User requested status transition " + statusTransition.getName());
+        log.debug("[AppEngine] User requested status transition " + statusTransition.getName());
         AlertType.CONFIRMATION.playSound(display);
         if (statusTransition.equals(AppWorkflow.START)) {
             start();
@@ -160,7 +157,7 @@ public class AppEngine implements UserActionListener, LocationListener {
                 double horizontalAccuracy = coordinates.getHorizontalAccuracy();
                 double verticalAccuracy = coordinates.getVerticalAccuracy();
 
-                log.debug("[AppEngine " + id + "] Location information arrived: " + latitude + ";" + longitude + ";" + altitude + ";" + horizontalAccuracy + ";" + verticalAccuracy);
+                log.debug("[AppEngine] Location information arrived: " + latitude + ";" + longitude + ";" + altitude + ";" + horizontalAccuracy + ";" + verticalAccuracy);
 
                 Date dateTime = new Date();
                 TrackPoint point = new TrackPoint(dateTime, latitude, longitude, altitude, horizontalAccuracy, verticalAccuracy);
@@ -170,15 +167,15 @@ public class AppEngine implements UserActionListener, LocationListener {
                 }
                 appState.setInfo("" + currentTrack.getPoints().size());
             } catch (Exception ex) {
-                log.debug("[AppEngine " + id + "] Failed to handle location update: " + ex.getMessage());
+                log.debug("[AppEngine] Failed to handle location update: " + ex.getMessage());
             }
         } else {
-            log.debug("[AppEngine " + id + "] Location information arrived but is ignored. CurrentTrack: " + currentTrack + ", current status: " + appState.getAppStatus().getDisplayName());
+            log.debug("[AppEngine] Location information arrived but is ignored. CurrentTrack: " + currentTrack + ", current status: " + appState.getAppStatus().getDisplayName());
         }
     }
 
     public void providerStateChanged(LocationProvider provider, int newState) {
-        log.debug("[AppEngine " + id + "] location provider state changed to " + newState);
+        log.debug("[AppEngine] Location provider state changed to " + newState);
         if (newState == LocationProvider.AVAILABLE) {
             appState.setGpsStatus(GpsStatus.OK);
         }
