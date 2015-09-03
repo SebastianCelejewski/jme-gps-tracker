@@ -17,3 +17,7 @@ To create a GPS tracker for simple phones that is usable in specific conditions:
 
 ## Task list
 https://trello.com/b/rHA1pG8C/jme-gps-tracker
+
+## Documentation
+### Application lifecycle
+![Lifecycle](https://raw.githubusercontent.com/SebastianCelejewski/jme-gps-tracker/master/doc/jme-gps-tracker-workflow.png)
