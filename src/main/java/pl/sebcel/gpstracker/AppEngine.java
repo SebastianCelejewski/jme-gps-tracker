@@ -46,12 +46,14 @@ public class AppEngine implements UserActionListener, LocationListener {
     private Vector currentTrackPoints;
     private Configuration config;
     private boolean alreadyInitialized = false;
+    private Runtime runtime;
 
     public AppEngine(AppState appState, Configuration config, Display display, TrackRepository trackRepository) {
         this.appState = appState;
         this.trackRepository = trackRepository;
         this.display = display;
         this.config = config;
+        this.runtime = Runtime.getRuntime();
     }
 
     public void init() {
@@ -71,6 +73,7 @@ public class AppEngine implements UserActionListener, LocationListener {
                     if (appState.getAppStatus().equals(AppStatus.STARTED) && currentTrack != null) {
                         log.debug("[AppEngine] Triggering track auto saving");
                         save();
+                        log.debug("[AppEngine] Memory: " + getMemoryUtilization());
                     }
                     try {
                         Thread.sleep(config.getSaveInterval() * 1000);
@@ -202,5 +205,13 @@ public class AppEngine implements UserActionListener, LocationListener {
         if (newState == LocationProvider.OUT_OF_SERVICE) {
             appState.setGpsStatus(GpsStatus.NOT_AVAILABLE);
         }
+    }
+
+    private String getMemoryUtilization() {
+        long totalMemory = runtime.totalMemory();
+        long freeMemory = runtime.freeMemory();
+        long usedMemory = totalMemory - freeMemory;
+        double memoryUtilization =  (int) (100 * (double) usedMemory / (double) totalMemory);
+        return "Total: " + totalMemory + ", free: " + freeMemory + ", used: " + usedMemory + " (" + memoryUtilization + "%)";
     }
 }
