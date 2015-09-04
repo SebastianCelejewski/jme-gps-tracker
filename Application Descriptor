@@ -1,6 +1,6 @@
 MIDlet-Version: 0.2
 MIDlet-Vendor: Sebastian Celejewski
-MIDlet-Jar-URL: jme-gps-tracker-0.2.jar
+MIDlet-Jar-URL: jme-gps-tracker.jar
 MicroEdition-Configuration: CLDC-1.0
 MIDlet-1: GpsTracker,/icons/jme-gps-tracker.png,pl.sebcel.gpstracker.GpsTracker
 MicroEdition-Profile: MIDP-2.1
