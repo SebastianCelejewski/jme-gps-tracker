@@ -16,6 +16,8 @@ import pl.sebcel.gpstracker.config.Configuration;
 import pl.sebcel.gpstracker.events.UserActionListener;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
+import pl.sebcel.gpstracker.plugins.smsnotifier.SMSNotifier;
+import pl.sebcel.gpstracker.plugins.smsnotifier.WaypointManager;
 import pl.sebcel.gpstracker.repository.TrackRepository;
 import pl.sebcel.gpstracker.state.AppState;
 import pl.sebcel.gpstracker.state.AppStatus;
@@ -47,6 +49,8 @@ public class AppEngine implements UserActionListener, LocationListener {
     private Configuration config;
     private boolean alreadyInitialized = false;
     private Runtime runtime;
+    
+    private SMSNotifier smsNotifier;
 
     public AppEngine(AppState appState, Configuration config, Display display, TrackRepository trackRepository) {
         this.appState = appState;
@@ -54,6 +58,8 @@ public class AppEngine implements UserActionListener, LocationListener {
         this.display = display;
         this.config = config;
         this.runtime = Runtime.getRuntime();
+        
+        this.smsNotifier = new SMSNotifier(new WaypointManager());
     }
 
     public void init() {
@@ -146,6 +152,8 @@ public class AppEngine implements UserActionListener, LocationListener {
     }
 
     public void userSwitchedTo(StatusTransition statusTransition) {
+        smsNotifier.userSwitchedTo(statusTransition);
+        
         System.out.println("Switching to " + statusTransition.getTargetStatus().getDisplayName() + " upon " + statusTransition.getName());
         log.debug("[AppEngine] User requested status transition " + statusTransition.getName());
         AlertType.CONFIRMATION.playSound(display);
@@ -169,6 +177,9 @@ public class AppEngine implements UserActionListener, LocationListener {
     public void locationUpdated(LocationProvider provider, Location location) {
         if (currentTrack != null && appState.getAppStatus().equals(AppStatus.STARTED)) {
             try {
+                
+                smsNotifier.locationUpdated(provider, location);
+                
                 AlertType.INFO.playSound(display);
                 QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
                 double latitude = coordinates.getLatitude();

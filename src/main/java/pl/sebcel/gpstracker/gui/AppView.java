@@ -9,6 +9,7 @@ import javax.microedition.lcdui.Graphics;
 import pl.sebcel.gpstracker.AppColor;
 import pl.sebcel.gpstracker.events.AppStateChangeListener;
 import pl.sebcel.gpstracker.events.UserActionListener;
+import pl.sebcel.gpstracker.state.AppState;
 import pl.sebcel.gpstracker.state.AppStatus;
 import pl.sebcel.gpstracker.state.GpsStatus;
 import pl.sebcel.gpstracker.workflow.AppWorkflow;
@@ -82,7 +83,7 @@ public class AppView extends Canvas implements AppStateChangeListener {
         this.repaint();
     }
 
-    public void appStateChanged() {
+    public void appStateChanged(AppState appState) {
         this.repaint();
     }
 

@@ -2,7 +2,7 @@
 <mtjMetadata jad="jme-gps-tracker.jad" version="1.2.2.201110240906">
    <device group="Oracle Java(TM) Platform Micro Edition SDK 3.4" name="JavaMEPhone1"/>
    <signing projectSpecific="false" signProject="false">
-      <alias/>
+      <alias>selfsigned2</alias>
    </signing>
    <configurations>
       <configuration active="true" name="JavaMEPhone1">

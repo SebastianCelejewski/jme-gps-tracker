@@ -51,7 +51,7 @@ public class AppState {
     private void notifyListeners() {
         for (int i = 0; i < listeners.size(); i++) {
             AppStateChangeListener listener = (AppStateChangeListener) listeners.elementAt(i);
-            listener.appStateChanged();
+            listener.appStateChanged(this);
         }
     }
 }
