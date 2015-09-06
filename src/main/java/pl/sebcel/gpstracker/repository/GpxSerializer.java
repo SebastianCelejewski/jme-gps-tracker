@@ -1,6 +1,7 @@
 package pl.sebcel.gpstracker.repository;
 
 import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Vector;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -9,14 +10,21 @@ import javax.xml.stream.XMLStreamWriter;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
 import pl.sebcel.gpstracker.utils.DateFormat;
+import pl.sebcel.gpstracker.utils.Logger;
 
 public class GpxSerializer {
+    
+    private final Logger log = Logger.getLogger();
 
     public String serialize(Track track) {
         try {
 
+            log.debug("[GpxSerializer] Serializing track data into GPX.");
+            
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(out);
+            
+            log.debug("[GpxSerializer] XMLStreamWriter: "+writer);
 
             writer.writeStartDocument();
             
@@ -49,9 +57,12 @@ public class GpxSerializer {
 
             byte[] output = out.toByteArray();
             String xml = new String(output);
+            
+            log.debug("[GpxSerializer] Track data serialized successfully.");
+            
             return xml;
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to serialize Gpx Track into XML: " + ex.getMessage());
+            throw new RuntimeException("[GpxSerializer] Failed to serialize Gpx Track into XML: " + ex.getMessage());
         }
     }
 }

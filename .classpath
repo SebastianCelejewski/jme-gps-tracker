@@ -6,5 +6,6 @@
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.elipse.mtj.JavaMEContainer/Oracle Java(TM) Platform Micro Edition SDK 3.4/JavaMEPhone1"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry exported="true" kind="lib" path="D:/java/Java_ME_platform_SDK_3.4/lib/jsr280_1.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

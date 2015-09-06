@@ -14,6 +14,7 @@ import pl.sebcel.gpstracker.repository.TrackRepository;
 import pl.sebcel.gpstracker.state.AppState;
 import pl.sebcel.gpstracker.state.AppStatus;
 import pl.sebcel.gpstracker.state.GpsStatus;
+import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
 
 /**
@@ -43,7 +44,8 @@ public class GpsTracker extends MIDlet {
         Configuration config = configurationProvider.getConfiguration();
         AppState state = new AppState(AppStatus.UNINITIALIZED, GpsStatus.UNINITIALIZED);
         GpxSerializer gpxSerializer = new GpxSerializer();
-        TrackRepository trackRepository = new TrackRepository(gpxSerializer);
+        FileUtils fileUtils = new FileUtils();
+        TrackRepository trackRepository = new TrackRepository(gpxSerializer, fileUtils);
         model = new AppModel(state);
         view = new AppView(model);
         engine = new AppEngine(state, config, display, trackRepository);

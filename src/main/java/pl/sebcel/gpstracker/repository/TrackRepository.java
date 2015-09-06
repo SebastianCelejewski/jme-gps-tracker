@@ -4,16 +4,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import javax.microedition.io.file.FileSystemRegistry;
 
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
 import pl.sebcel.gpstracker.utils.DateFormat;
+import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
 
 public class TrackRepository {
@@ -21,25 +20,24 @@ public class TrackRepository {
     private final Logger log = Logger.getLogger();
 
     private GpxSerializer gpxSerializer;
-    private Hashtable writers = new Hashtable();
+    private PrintStream writer;
+    private FileUtils fileUtils;
 
-    public TrackRepository(GpxSerializer gpxSerializer) {
+    public TrackRepository(GpxSerializer gpxSerializer, FileUtils fileUtils) {
         this.gpxSerializer = gpxSerializer;
+        this.fileUtils = fileUtils;
     }
 
     public void createNewTrack(Track track) {
-        if (!writers.contains(track.getId())) {
-            try {
-                String root = (String) FileSystemRegistry.listRoots().nextElement();
-                String fileName = DateFormat.getFilename(track.getStartDate(), "", "dta");
-                String uri = "file:///" + root + fileName;
-                FileConnection fconn = (FileConnection) Connector.open(uri);
-                fconn.create();
-                PrintStream writer = new PrintStream(fconn.openOutputStream());
-                writers.put(track.getId(), writer);
-            } catch (Exception ex) {
-                log.debug("Cannot create PrintStream for track " + track.getId() + ": " + ex.getMessage());
-            }
+        try {
+            String root = fileUtils.findRoot();
+            String fileName = DateFormat.getFilename(track.getStartDate(), "", "dta");
+            String uri = "file:///" + root + fileName;
+            FileConnection fconn = (FileConnection) Connector.open(uri);
+            fconn.create();
+            writer = new PrintStream(fconn.openOutputStream());
+        } catch (Exception ex) {
+            log.debug("Cannot create PrintStream for track " + track.getId() + ": " + ex.getMessage());
         }
     }
 
@@ -55,7 +53,6 @@ public class TrackRepository {
         String dataString = data.toString();
         byte[] dataBytes = dataString.getBytes();
 
-        PrintStream writer = (PrintStream) writers.get(track.getId());
         try {
             writer.write(dataBytes);
         } catch (Exception ex) {
@@ -72,7 +69,7 @@ public class TrackRepository {
     public void saveTrack(Track track) {
         log.debug("[TrackRepository] Saving track " + track.getId());
         Date startTime = new Date();
-        String root = (String) FileSystemRegistry.listRoots().nextElement();
+        String root = fileUtils.findRoot();
         String fileName = DateFormat.getFilename(track.getStartDate(), "", "gpx");
 
         try {
@@ -91,23 +88,14 @@ public class TrackRepository {
             System.out.println("Writing to file");
 
             String xml = gpxSerializer.serialize(track);
-
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
             PrintStream out = new PrintStream(buffer);
-
             out.println(xml);
-
             System.out.println("Closing file ");
-
             byte[] data = buffer.toByteArray();
-
             fconn.openOutputStream().write(data);
-
             fconn.close();
-
             Date endTime = new Date();
-
             long duration = endTime.getTime() - startTime.getTime();
 
             log.debug("[TrackRepository] Track " + track.getId() + " saved (" + track.getPoints().size() + " points, " + data.length + " bytes, " + duration + " ms)");
