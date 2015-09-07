@@ -5,7 +5,6 @@ import java.util.Date;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-import javax.microedition.io.file.FileSystemRegistry;
 
 public class Logger {
 
@@ -24,7 +23,7 @@ public class Logger {
     }
 
     public Logger() {
-        String root = (String) FileSystemRegistry.listRoots().nextElement();
+        String root = new FileUtils().findRoot();
         String fileName = DateFormat.getFilename(new Date(), "", "log");
         try {
             String uri = "file:///" + root + fileName;
