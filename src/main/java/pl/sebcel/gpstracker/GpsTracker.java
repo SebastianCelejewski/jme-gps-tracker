@@ -6,10 +6,11 @@ import javax.microedition.midlet.MIDletStateChangeException;
 
 import pl.sebcel.gpstracker.config.Configuration;
 import pl.sebcel.gpstracker.config.ConfigurationProvider;
+import pl.sebcel.gpstracker.gpx.CustomGpxSerializer;
+import pl.sebcel.gpstracker.gpx.GpxSerializer;
 import pl.sebcel.gpstracker.gui.AppModel;
 import pl.sebcel.gpstracker.gui.AppView;
 import pl.sebcel.gpstracker.location.LocationManager;
-import pl.sebcel.gpstracker.repository.GpxSerializer;
 import pl.sebcel.gpstracker.repository.TrackRepository;
 import pl.sebcel.gpstracker.state.AppState;
 import pl.sebcel.gpstracker.state.AppStatus;
@@ -43,7 +44,7 @@ public class GpsTracker extends MIDlet {
         ConfigurationProvider configurationProvider = new ConfigurationProvider();
         Configuration config = configurationProvider.getConfiguration();
         AppState state = new AppState(AppStatus.UNINITIALIZED, GpsStatus.UNINITIALIZED);
-        GpxSerializer gpxSerializer = new GpxSerializer();
+        GpxSerializer gpxSerializer = new CustomGpxSerializer();
         FileUtils fileUtils = new FileUtils();
         TrackRepository trackRepository = new TrackRepository(gpxSerializer, fileUtils);
         model = new AppModel(state);
