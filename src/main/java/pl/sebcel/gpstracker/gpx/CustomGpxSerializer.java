@@ -33,6 +33,7 @@ public class CustomGpxSerializer implements GpxSerializer {
 
             result.append("</trkseg>\n");
             result.append("</trk>\n");
+            result.append("</gpx>\n");
 
             String xml = result.toString();
 
