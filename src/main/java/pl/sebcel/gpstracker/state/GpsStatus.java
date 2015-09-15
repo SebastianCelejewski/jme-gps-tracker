@@ -9,6 +9,7 @@ public class GpsStatus {
     public static GpsStatus LOCATING = new GpsStatus(2, "Locating", new AppColor(255, 0, 0));
     public static GpsStatus OK = new GpsStatus(3, "OK", new AppColor(0, 255, 0));
     public static GpsStatus SIGNAL_LOST = new GpsStatus(4, "Signal lost", new AppColor(255, 0, 0));
+    public static GpsStatus INVALID_READING = new GpsStatus(5, "Invalid reading", new AppColor(150, 50, 0));
 
     private int id;
     private String displayName;

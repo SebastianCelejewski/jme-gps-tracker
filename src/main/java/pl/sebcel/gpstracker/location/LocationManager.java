@@ -40,7 +40,7 @@ public class LocationManager {
         }
         alreadyStarted = true;
         final Criteria cr = new Criteria();
-        cr.setHorizontalAccuracy(config.getGpsHorizontalAccuracy());
+        cr.setHorizontalAccuracy(config.getGpsHorizontalAccuracyForLocationProvider());
         new Thread(new Runnable() {
 
             public void run() {

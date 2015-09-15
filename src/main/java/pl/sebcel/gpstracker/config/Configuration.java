@@ -5,7 +5,8 @@ public class Configuration {
     private int saveInterval;
     private int gpsLocationInterval;
     private int gpsLocationSingalLossTimeout;
-    private int gpsHorizontalAccuracy;
+    private int gpsHorizontalAccuracyForLocationProvider;
+    private int gpsHorizontalAccuracyForTrackPointsFiltering;
     private int gpsLocationFindTimeout;
     private int gpsLocationFindRetryDelay;
 
@@ -25,12 +26,20 @@ public class Configuration {
         this.saveInterval = saveInterval;
     }
 
-    public int getGpsHorizontalAccuracy() {
-        return gpsHorizontalAccuracy;
+    public int getGpsHorizontalAccuracyForLocationProvider() {
+        return gpsHorizontalAccuracyForLocationProvider;
     }
 
-    public void setGpsHorizontalAccuracy(int gpsHorizontalAccuracy) {
-        this.gpsHorizontalAccuracy = gpsHorizontalAccuracy;
+    public void setGpsHorizontalAccuracyForLocationProvider(int gpsHorizontalAccuracyForLocationProvider) {
+        this.gpsHorizontalAccuracyForLocationProvider = gpsHorizontalAccuracyForLocationProvider;
+    }
+
+    public int getGpsHorizontalAccuracyForTrackPointsFiltering() {
+        return gpsHorizontalAccuracyForTrackPointsFiltering;
+    }
+
+    public void setGpsHorizontalAccuracyForTrackPointsFiltering(int gpsHorizontalAccuracyForTrackPointsFiltering) {
+        this.gpsHorizontalAccuracyForTrackPointsFiltering = gpsHorizontalAccuracyForTrackPointsFiltering;
     }
 
     public int getGpsLocationFindTimeout() {
@@ -58,7 +67,7 @@ public class Configuration {
     }
 
     public String toString() {
-        return "Configuration [locationInterval=" + gpsLocationInterval + ", saveInterval=" + saveInterval + ", gpsHorizontalAccuracy=" + gpsHorizontalAccuracy + ", gpsLocationFindTimeout=" + gpsLocationFindTimeout + ", gpsLocationFindRetryDelay=" + gpsLocationFindRetryDelay + "]";
+        return "Configuration [locationInterval=" + gpsLocationInterval + ", saveInterval=" + saveInterval + ", gpsHorizontalAccuracy=" + gpsHorizontalAccuracyForLocationProvider + ", gpsLocationFindTimeout=" + gpsLocationFindTimeout + ", gpsLocationFindRetryDelay=" + gpsLocationFindRetryDelay + "]";
     }
 
 }
