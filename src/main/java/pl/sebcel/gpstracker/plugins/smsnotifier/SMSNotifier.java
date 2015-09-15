@@ -42,6 +42,10 @@ public class SMSNotifier implements AppStateChangeListener, UserActionListener, 
     public void appStateChanged(AppState appState) {
     }
 
+    public void restart() {
+        waypointManager.restart();
+    }
+
     public void locationUpdated(LocationProvider provider, Location location) {
         QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
         String message = waypointManager.getWaypointInfo(coordinates);
@@ -51,35 +55,42 @@ public class SMSNotifier implements AppStateChangeListener, UserActionListener, 
         }
     }
 
-    private void sendMessage(String message) {
-        try {
-            String url = "http://www.sebastian-celejewski.pl/Klodziomondo/update.php?message=" + message;
-            HttpConnection httpConnection = (HttpConnection) Connector.open(url);
-            httpConnection.setRequestMethod(HttpConnection.GET);
-            httpConnection.setRequestProperty("User-Agent", "Klodziomondo");
+    private void sendMessage(final String message) {
+        synchronized (this) {
+            new Thread(new Runnable() {
 
-            log.debug("[SMS Notifier] HttpConnection: " + httpConnection);
+                public void run() {
+                    try {
+                        String url = "http://www.sebastian-celejewski.pl/Klodziomondo/update.php?message=" + message;
+                        HttpConnection httpConnection = (HttpConnection) Connector.open(url);
+                        httpConnection.setRequestMethod(HttpConnection.GET);
+                        httpConnection.setRequestProperty("User-Agent", "Klodziomondo");
 
-            int responseCode = httpConnection.getResponseCode();
-            log.debug("[SMS Notifier] Response code: " + responseCode);
+                        log.debug("[SMS Notifier] HttpConnection: " + httpConnection);
 
-            if (responseCode == HttpConnection.HTTP_OK) {
-                StringBuffer sb = new StringBuffer();
-                InputStream is = httpConnection.openDataInputStream();
-                int chr;
-                while ((chr = is.read()) != -1) {
-                    sb.append((char) chr);
+                        int responseCode = httpConnection.getResponseCode();
+                        log.debug("[SMS Notifier] Response code: " + responseCode);
+
+                        if (responseCode == HttpConnection.HTTP_OK) {
+                            StringBuffer sb = new StringBuffer();
+                            InputStream is = httpConnection.openDataInputStream();
+                            int chr;
+                            while ((chr = is.read()) != -1) {
+                                sb.append((char) chr);
+                            }
+
+                            // Web Server just returns the birthday in mm/dd/yy format.
+                            log.debug("[SMS Notifier] Response: " + sb.toString());
+                        }
+
+                        httpConnection.close();
+                    }
+
+                    catch (Exception ex) {
+                        log.debug("[SMS Notifier] Error: " + ex);
+                    }
                 }
-
-                // Web Server just returns the birthday in mm/dd/yy format.
-                log.debug("[SMS Notifier] Response: " + sb.toString());
-            }
-            
-            httpConnection.close();
-        }
-
-        catch (Exception ex) {
-            log.debug("[SMS Notifier] Error: " + ex);
+            }).start();
         }
     }
 

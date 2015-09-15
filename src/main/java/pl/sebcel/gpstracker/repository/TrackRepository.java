@@ -64,7 +64,7 @@ public class TrackRepository {
         Date endTime = new Date();
         long duration = endTime.getTime() - startTime.getTime();
 
-        log.debug("Saved " + trackPoints.size() + " track points (" + dataBytes.length + " bytes, " + duration + " ms)");
+        log.debug("[TrackRepository] Saved " + trackPoints.size() + " track points (" + dataBytes.length + " bytes, " + duration + " ms)");
     }
 
     public void saveTrack(Track track) {

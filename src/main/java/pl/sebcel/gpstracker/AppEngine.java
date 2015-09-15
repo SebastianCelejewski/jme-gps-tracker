@@ -98,11 +98,13 @@ public class AppEngine implements UserActionListener, LocationListener {
 
     private void start() {
         log.debug("[AppEngine] Starting recording of a new track");
+        appState.setAppStatus(AppStatus.STARTING);
         Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         String trackId = DateFormat.format(currentDate.getTime());
         currentTrackPoints = new Vector();
         currentTrack = new Track(trackId, new Date());
         trackRepository.createNewTrack(currentTrack);
+        smsNotifier.restart();
 
         System.out.println("Started recording track " + currentTrack.getId());
         appState.setAppStatus(AppStatus.STARTED);
@@ -158,8 +160,11 @@ public class AppEngine implements UserActionListener, LocationListener {
         long lastGpsUpdateInterval = now - lastGpsUpdate;
 
         log.debug("[AppEngine] Last GPS update interval: " + lastGpsUpdateInterval + ". Acceptable interval: " + config.getGpsLocationSingalLossTimeout() * 1000);
-
-        if (lastGpsUpdateInterval > config.getGpsLocationSingalLossTimeout() * 1000 && appState.getGpsStatus().equals(GpsStatus.OK)) {
+        
+        boolean tooLate = lastGpsUpdateInterval > config.getGpsLocationSingalLossTimeout() * 1000;
+        boolean statusIsAppropriateToReportLossOfSignal = appState.getGpsStatus().equals(GpsStatus.OK) || appState.getGpsStatus().equals(GpsStatus.INVALID_READING); 
+        
+        if (tooLate && statusIsAppropriateToReportLossOfSignal) {
             log.debug("[AppEngine] Switching to Signal Lost");
             appState.setGpsStatus(GpsStatus.SIGNAL_LOST);
         }
@@ -220,12 +225,10 @@ public class AppEngine implements UserActionListener, LocationListener {
 
         appState.setGpsStatus(GpsStatus.OK);
         lastGpsUpdate = new Date().getTime();
-                
-                smsNotifier.locationUpdated(provider, location);
-                
 
-        if (currentTrack == null || appState.getAppStatus().equals(AppStatus.STARTED)) {
+        if (currentTrack == null || !appState.getAppStatus().equals(AppStatus.STARTED)) {
             log.debug("[AppEngine] Location information arrived but is ignored. CurrentTrack: " + currentTrack + ", current status: " + appState.getAppStatus().getDisplayName());
+            return;
         }
 
         try {
@@ -238,6 +241,7 @@ public class AppEngine implements UserActionListener, LocationListener {
                 currentTrackPoints.addElement(point);
             }
             appState.setInfo("" + currentTrack.getPoints().size());
+            smsNotifier.locationUpdated(provider, location);
         } catch (Exception ex) {
             log.debug("[AppEngine] Failed to handle location update: " + ex.getMessage());
         }
