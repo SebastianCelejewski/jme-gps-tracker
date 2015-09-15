@@ -21,3 +21,9 @@ https://trello.com/b/rHA1pG8C/jme-gps-tracker
 ## Documentation
 ### Application lifecycle
 ![Lifecycle](https://raw.githubusercontent.com/SebastianCelejewski/jme-gps-tracker/master/doc/jme-gps-tracker-workflow.png)
+
+## Tests
+
+- Samsung Solid GT-B2710
+- Nokia 2710
+- Sony Erricson Walkman W890i

@@ -2,6 +2,7 @@ package pl.sebcel.gpstracker.repository;
 
 import java.util.Date;
 
+import pl.sebcel.gpstracker.gpx.JSR280GpxSerializer;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
 import junit.framework.TestCase;
@@ -17,7 +18,7 @@ public class TestGPXExportTest extends TestCase {
         track.addPoint(new TrackPoint(date1, 12.5, 15.6, 12.1, 1.0, 2.0));
         track.addPoint(new TrackPoint(date2, 12.4, 15.7, 12.1, 1.0, 2.0));
 
-        GpxSerializer serializer = new GpxSerializer();
+        JSR280GpxSerializer serializer = new JSR280GpxSerializer();
 
         String output = serializer.serialize(track);
         System.out.println(output);

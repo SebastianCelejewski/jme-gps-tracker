@@ -12,10 +12,13 @@ import pl.sebcel.gpstracker.events.UserActionListener;
 import pl.sebcel.gpstracker.state.AppState;
 import pl.sebcel.gpstracker.state.AppStatus;
 import pl.sebcel.gpstracker.state.GpsStatus;
+import pl.sebcel.gpstracker.utils.Logger;
 import pl.sebcel.gpstracker.workflow.AppWorkflow;
 import pl.sebcel.gpstracker.workflow.StatusTransition;
 
 public class AppView extends Canvas implements AppStateChangeListener {
+
+    private final Logger log = Logger.getLogger();
 
     private AppModel model;
     private int selectedTransition = 0;
@@ -25,6 +28,7 @@ public class AppView extends Canvas implements AppStateChangeListener {
     public AppView(AppModel model) {
         super();
         this.model = model;
+        log.debug("Dimensions: " + this.getWidth() + "x" + this.getHeight());
     }
 
     public void addListener(UserActionListener listener) {
@@ -32,28 +36,34 @@ public class AppView extends Canvas implements AppStateChangeListener {
     }
 
     protected void paint(Graphics g) {
+        int width = this.getWidth();
+        int height = this.getHeight();
+        
         g.setColor(0, 0, 0);
-        g.fillRect(0, 0, 320, 320);
+        g.fillRect(0, 0, width, height);
 
         GpsStatus gpsStatus = model.getAppState().getGpsStatus();
         AppStatus appStatus = model.getAppState().getAppStatus();
 
         AppColor appStatusColor = appStatus.getColor();
+        int boxMargin = 10;
+        int boxWidth = width / 2 - boxMargin;
+        int boxHeight = 80;
         g.setColor(appStatusColor.getRed(), appStatusColor.getGreen(), appStatusColor.getBlue());
-        g.fillRect(0, 0, 100, 100);
+        g.fillRect(0, 0, boxWidth, boxHeight);
 
         AppColor gpsStatusColor = gpsStatus.getColor();
         g.setColor(gpsStatusColor.getRed(), gpsStatusColor.getGreen(), gpsStatusColor.getBlue());
-        g.fillRect(120, 0, 100, 100);
+        g.fillRect(boxWidth + boxMargin, 0, boxWidth, boxHeight);
 
         g.setColor(255, 255, 255);
         g.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_LARGE));
-        g.drawString("Status: " + appStatus.getDisplayName(), 5, 110, Graphics.TOP | Graphics.LEFT);
-        g.drawString("GPS: " + gpsStatus.getDisplayName(), 5, 130, Graphics.TOP | Graphics.LEFT);
-        g.drawString("Info: " + model.getAppState().getInfo(), 5, 170, Graphics.TOP | Graphics.LEFT);
+        g.drawString("Status: " + appStatus.getDisplayName(), 5, boxHeight + 20, Graphics.TOP | Graphics.LEFT);
+        g.drawString("GPS: " + gpsStatus.getDisplayName(), 5, boxHeight + 40, Graphics.TOP | Graphics.LEFT);
+        g.drawString("Info: " + model.getAppState().getInfo(), 5, boxHeight + 60, Graphics.TOP | Graphics.LEFT);
 
         StatusTransition[] availableTransitions = workflow.getAvailableTransitions(appStatus);
-        int i = 230;
+        int i = boxHeight + 80;
         for (int k = 0; k < availableTransitions.length; k++) {
             g.setColor(255, 255, 255);
             if (k == selectedTransition) {
@@ -63,19 +73,18 @@ public class AppView extends Canvas implements AppStateChangeListener {
             g.drawString(availableTransitions[k].getName(), 25, i, Graphics.TOP | Graphics.LEFT);
             i = i + 20;
         }
-        this.getGameAction(DOWN);
     }
 
     protected void keyPressed(int keyCode) {
         StatusTransition[] availableTransitions = workflow.getAvailableTransitions(model.getAppState().getAppStatus());
 
-        if (keyCode == getKeyCode(DOWN) && selectedTransition < availableTransitions.length - 1) {
+        if (getGameAction(keyCode) == Canvas.DOWN && selectedTransition < availableTransitions.length - 1) {
             selectedTransition += 1;
         }
-        if (keyCode == getKeyCode(UP) && selectedTransition > 0) {
+        if (getGameAction(keyCode) == Canvas.UP && selectedTransition > 0) {
             selectedTransition -= 1;
         }
-        if (keyCode == getKeyCode(FIRE) && availableTransitions.length > 0) {
+        if (getGameAction(keyCode) == Canvas.FIRE && availableTransitions.length > 0) {
             StatusTransition statusTransition = availableTransitions[selectedTransition];
             notifyListeners(statusTransition);
             selectedTransition = 0;
