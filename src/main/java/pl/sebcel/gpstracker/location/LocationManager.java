@@ -61,7 +61,7 @@ public class LocationManager {
                         
                         log.debug("[LocationManager] LocationProvider found. " + locationProvider.getClass());
                         log.debug("[LocationManager] Config: "+config.toString());
-                        locationProvider.setLocationListener(locationListener, config.getLocationInterval(), config.getLocationInterval(), config.getLocationInterval());
+                        locationProvider.setLocationListener(locationListener, config.getGpsLocationInterval(), config.getGpsLocationInterval(), config.getGpsLocationInterval());
                         log.debug("[LocationManager] Location listener set");
                         Location location = locationProvider.getLocation(config.getGpsLocationFindTimeout());
                         Date endDate = new Date();

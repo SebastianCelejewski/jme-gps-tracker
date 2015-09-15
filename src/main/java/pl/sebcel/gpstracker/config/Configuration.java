@@ -2,18 +2,19 @@ package pl.sebcel.gpstracker.config;
 
 public class Configuration {
 
-    private int locationInterval;
     private int saveInterval;
+    private int gpsLocationInterval;
+    private int gpsLocationSingalLossTimeout;
     private int gpsHorizontalAccuracy;
     private int gpsLocationFindTimeout;
     private int gpsLocationFindRetryDelay;
 
-    public int getLocationInterval() {
-        return locationInterval;
+    public int getGpsLocationInterval() {
+        return gpsLocationInterval;
     }
 
-    public void setLocationInterval(int locationInterval) {
-        this.locationInterval = locationInterval;
+    public void setGpsLocationInterval(int gpsLocationInterval) {
+        this.gpsLocationInterval = gpsLocationInterval;
     }
 
     public int getSaveInterval() {
@@ -48,8 +49,16 @@ public class Configuration {
         this.gpsLocationFindRetryDelay = gpsLocationFindRetryDelay;
     }
 
+    public int getGpsLocationSingalLossTimeout() {
+        return gpsLocationSingalLossTimeout;
+    }
+
+    public void setGpsLocationSingalLossTimeout(int gpsLocationSingalLossTimeout) {
+        this.gpsLocationSingalLossTimeout = gpsLocationSingalLossTimeout;
+    }
+
     public String toString() {
-        return "Configuration [locationInterval=" + locationInterval + ", saveInterval=" + saveInterval + ", gpsHorizontalAccuracy=" + gpsHorizontalAccuracy + ", gpsLocationFindTimeout=" + gpsLocationFindTimeout + ", gpsLocationFindRetryDelay=" + gpsLocationFindRetryDelay + "]";
+        return "Configuration [locationInterval=" + gpsLocationInterval + ", saveInterval=" + saveInterval + ", gpsHorizontalAccuracy=" + gpsHorizontalAccuracy + ", gpsLocationFindTimeout=" + gpsLocationFindTimeout + ", gpsLocationFindRetryDelay=" + gpsLocationFindRetryDelay + "]";
     }
 
 }

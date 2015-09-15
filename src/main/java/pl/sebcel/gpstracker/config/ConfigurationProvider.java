@@ -8,11 +8,12 @@ public class ConfigurationProvider {
 
     public Configuration getConfiguration() {
         Configuration config = new Configuration();
-        config.setLocationInterval(5);
+        config.setGpsLocationInterval(5);
         config.setSaveInterval(20);
         config.setGpsHorizontalAccuracy(500);
         config.setGpsLocationFindTimeout(600);
         config.setGpsLocationFindRetryDelay(10);
+        config.setGpsLocationSingalLossTimeout(15);
 
         log.debug("[ConfigurationProvider] Current configuration: ");
         log.debug(config.toString());
