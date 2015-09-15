@@ -199,35 +199,47 @@ public class AppEngine implements UserActionListener, LocationListener {
             return;
         }
 
-        lastGpsUpdate = new Date().getTime();
+        QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
+        double latitude = coordinates.getLatitude();
+        double longitude = coordinates.getLongitude();
+        double altitude = coordinates.getAltitude();
+        double horizontalAccuracy = coordinates.getHorizontalAccuracy();
+        double verticalAccuracy = coordinates.getVerticalAccuracy();
+
+        log.debug("[AppEngine] Location information arrived: " + latitude + ";" + longitude + ";" + altitude + ";" + horizontalAccuracy + ";" + verticalAccuracy);
+
+        if (horizontalAccuracy > config.getGpsHorizontalAccuracyForTrackPointsFiltering()) {
+            log.debug("[AppEngine] Location will be ignored, because horizontal accuracy (" + horizontalAccuracy + " m) is too weak. Expected accuracy must be lower than " + config.getGpsHorizontalAccuracyForTrackPointsFiltering() + " m.");
+            appState.setGpsStatus(GpsStatus.INVALID_READING);
+            return;
+        }
+
+        if (appState.getGpsStatus().equals(GpsStatus.SIGNAL_LOST)) {
+            log.debug("[AppEngine] GPS signal found again.");
+        }
+
         appState.setGpsStatus(GpsStatus.OK);
-        if (currentTrack != null && appState.getAppStatus().equals(AppStatus.STARTED)) {
-            try {
+        lastGpsUpdate = new Date().getTime();
                 
                 smsNotifier.locationUpdated(provider, location);
                 
-                AlertType.INFO.playSound(display);
-                QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
-                double latitude = coordinates.getLatitude();
-                double longitude = coordinates.getLongitude();
-                double altitude = coordinates.getAltitude();
-                double horizontalAccuracy = coordinates.getHorizontalAccuracy();
-                double verticalAccuracy = coordinates.getVerticalAccuracy();
 
-                log.debug("[AppEngine] Location information arrived: " + latitude + ";" + longitude + ";" + altitude + ";" + horizontalAccuracy + ";" + verticalAccuracy);
-
-                Date dateTime = new Date();
-                TrackPoint point = new TrackPoint(dateTime, latitude, longitude, altitude, horizontalAccuracy, verticalAccuracy);
-                synchronized (currentTrack) {
-                    currentTrack.addPoint(point);
-                    currentTrackPoints.addElement(point);
-                }
-                appState.setInfo("" + currentTrack.getPoints().size());
-            } catch (Exception ex) {
-                log.debug("[AppEngine] Failed to handle location update: " + ex.getMessage());
-            }
-        } else {
+        if (currentTrack == null || appState.getAppStatus().equals(AppStatus.STARTED)) {
             log.debug("[AppEngine] Location information arrived but is ignored. CurrentTrack: " + currentTrack + ", current status: " + appState.getAppStatus().getDisplayName());
+        }
+
+        try {
+            AlertType.INFO.playSound(display);
+
+            Date dateTime = new Date();
+            TrackPoint point = new TrackPoint(dateTime, latitude, longitude, altitude, horizontalAccuracy, verticalAccuracy);
+            synchronized (currentTrack) {
+                currentTrack.addPoint(point);
+                currentTrackPoints.addElement(point);
+            }
+            appState.setInfo("" + currentTrack.getPoints().size());
+        } catch (Exception ex) {
+            log.debug("[AppEngine] Failed to handle location update: " + ex.getMessage());
         }
     }
 

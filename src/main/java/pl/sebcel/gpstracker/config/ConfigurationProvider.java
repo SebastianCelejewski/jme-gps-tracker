@@ -10,7 +10,8 @@ public class ConfigurationProvider {
         Configuration config = new Configuration();
         config.setGpsLocationInterval(5);
         config.setSaveInterval(20);
-        config.setGpsHorizontalAccuracy(500);
+        config.setGpsHorizontalAccuracyForLocationProvider(500);
+        config.setGpsHorizontalAccuracyForTrackPointsFiltering(60);
         config.setGpsLocationFindTimeout(600);
         config.setGpsLocationFindRetryDelay(10);
         config.setGpsLocationSingalLossTimeout(15);
