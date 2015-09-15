@@ -49,6 +49,7 @@ public class AppEngine implements UserActionListener, LocationListener {
     private Configuration config;
     private boolean alreadyInitialized = false;
     private Runtime runtime;
+    private long lastGpsUpdate = 0;
     
     private SMSNotifier smsNotifier;
 
@@ -76,6 +77,7 @@ public class AppEngine implements UserActionListener, LocationListener {
 
             public void run() {
                 while (true) {
+                    checkIfGpsSignalIsLost();
                     if (appState.getAppStatus().equals(AppStatus.STARTED) && currentTrack != null) {
                         log.debug("[AppEngine] Triggering track auto saving");
                         save();
@@ -151,6 +153,18 @@ public class AppEngine implements UserActionListener, LocationListener {
         appState.setAppStatus(AppStatus.READY);
     }
 
+    private void checkIfGpsSignalIsLost() {
+        long now = new Date().getTime();
+        long lastGpsUpdateInterval = now - lastGpsUpdate;
+
+        log.debug("[AppEngine] Last GPS update interval: " + lastGpsUpdateInterval + ". Acceptable interval: " + config.getGpsLocationSingalLossTimeout() * 1000);
+
+        if (lastGpsUpdateInterval > config.getGpsLocationSingalLossTimeout() * 1000 && appState.getGpsStatus().equals(GpsStatus.OK)) {
+            log.debug("[AppEngine] Switching to Signal Lost");
+            appState.setGpsStatus(GpsStatus.SIGNAL_LOST);
+        }
+    }
+
     public void userSwitchedTo(StatusTransition statusTransition) {
         smsNotifier.userSwitchedTo(statusTransition);
         
@@ -175,6 +189,18 @@ public class AppEngine implements UserActionListener, LocationListener {
     }
 
     public void locationUpdated(LocationProvider provider, Location location) {
+        if (location == null) {
+            log.debug("[AppEngine] LocationUpdated has been called, but location is null.");
+            return;
+        }
+
+        if (location.getQualifiedCoordinates() == null) {
+            log.debug("[AppEngine] LocationUpdated has been called, but qualified coordinates are null.");
+            return;
+        }
+
+        lastGpsUpdate = new Date().getTime();
+        appState.setGpsStatus(GpsStatus.OK);
         if (currentTrack != null && appState.getAppStatus().equals(AppStatus.STARTED)) {
             try {
                 
@@ -222,7 +248,7 @@ public class AppEngine implements UserActionListener, LocationListener {
         long totalMemory = runtime.totalMemory();
         long freeMemory = runtime.freeMemory();
         long usedMemory = totalMemory - freeMemory;
-        double memoryUtilization =  (int) (100 * (double) usedMemory / (double) totalMemory);
+        double memoryUtilization = (int) (100 * (double) usedMemory / (double) totalMemory);
         return "Total: " + totalMemory + ", free: " + freeMemory + ", used: " + usedMemory + " (" + memoryUtilization + "%)";
     }
 }
