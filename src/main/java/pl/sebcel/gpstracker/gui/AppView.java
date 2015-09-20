@@ -72,6 +72,19 @@ public class AppView extends Canvas implements AppStateChangeListener {
             g.drawString(availableTransitions[k].getName(), 25, i, Graphics.TOP | Graphics.LEFT);
             i = i + 20;
         }
+
+        System.out.println("AppView is about to enter synchronized block");
+        System.out.println("Semaphor: "+model.getAppState());
+        synchronized (model.getAppState()) {
+            System.out.println("AppView entered synchronized block and is about to notify all");
+            model.getAppState().notifyAll();
+            System.out.println("AppView notified all is about to exit synchronized block");
+        }
+        System.out.println("AppView exited synchronized block");
+        
+        synchronized (model.getAppState()) {
+            model.getAppState().notifyAll();
+        }
     }
 
     protected void keyPressed(int keyCode) {
