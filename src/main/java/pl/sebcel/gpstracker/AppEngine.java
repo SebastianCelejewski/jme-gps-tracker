@@ -2,6 +2,7 @@ package pl.sebcel.gpstracker;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Stack;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -50,6 +51,8 @@ public class AppEngine implements UserActionListener, LocationListener {
     private boolean alreadyInitialized = false;
     private Runtime runtime;
     private long lastGpsUpdate = 0;
+    private Thread commandThread;
+    private Stack commands = new Stack();
     
     private SMSNotifier smsNotifier;
 
@@ -94,35 +97,78 @@ public class AppEngine implements UserActionListener, LocationListener {
 
         log.debug("[AppEngine] Starting autosave thread");
         autosaveThread.start();
+
+        commandThread = new Thread(new Runnable() {
+
+            public void run() {
+                while (true) {
+                    synchronized (appState) {
+                        log.debug("[AppEngine] Checking if there are commands to execute");
+                        if (!commands.empty()) {
+                            log.debug("[AppEngine] Executing command");
+                            Runnable command = (Runnable) commands.pop();
+                            command.run();
+                            log.debug("[AppEngine] Command executed");
+                        }
+
+                        try {
+                            appState.wait();
+                        } catch (Exception ex) {
+                            log.debug("[AppEngine] Command thread woken up. Commands queue length: " + commands.size());
+                        }
+                    }
+                }
+            }
+        });
+
+        log.debug("[AppEngine] Starting commands thread");
+        commandThread.start();
+        
+        log.debug("[AppEngine] Initialization complete");
     }
 
     private void start() {
         log.debug("[AppEngine] Starting recording of a new track");
         appState.setAppStatus(AppStatus.STARTING);
-        Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        String trackId = DateFormat.format(currentDate.getTime());
-        currentTrackPoints = new Vector();
-        currentTrack = new Track(trackId, new Date());
-        trackRepository.createNewTrack(currentTrack);
-        smsNotifier.restart();
 
-        System.out.println("Started recording track " + currentTrack.getId());
-        appState.setAppStatus(AppStatus.STARTED);
-        log.debug("[AppEngine] Track recording started");
+        Runnable command = new Runnable() {
+
+            public void run() {
+                Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+                String trackId = DateFormat.format(currentDate.getTime());
+                currentTrackPoints = new Vector();
+                currentTrack = new Track(trackId, new Date());
+                trackRepository.createNewTrack(currentTrack);
+
+                System.out.println("Started recording track " + currentTrack.getId());
+                appState.setAppStatus(AppStatus.STARTED);
+                smsNotifier.restart();
+                log.debug("[AppEngine] Track recording started");
+            }
+        };
+
+        commands.push(command);
     }
 
     private void stop() {
         log.debug("[AppEngine] Stopping track recording");
         appState.setAppStatus(AppStatus.STOPPING);
 
-        save();
+        Runnable command = new Runnable() {
 
-        appState.setInfo("Exporting track to GPX");
-        trackRepository.saveTrack(currentTrack);
-        currentTrack = null;
-        appState.setAppStatus(AppStatus.STOPPED);
-        appState.setInfo("Track exported to GPX");
-        log.debug("[AppEngine] Track recording stopped");
+            public void run() {
+                save();
+
+                appState.setInfo("Exporting track to GPX");
+                trackRepository.saveTrack(currentTrack);
+                currentTrack = null;
+                appState.setAppStatus(AppStatus.STOPPED);
+                appState.setInfo("Track exported to GPX");
+                log.debug("[AppEngine] Track recording stopped");
+            }
+        };
+
+        commands.push(command);
     }
 
     private void save() {
