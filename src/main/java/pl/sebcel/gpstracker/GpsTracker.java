@@ -57,10 +57,11 @@ public class GpsTracker extends MIDlet {
         state.addListener(view);
         view.addListener(engine);
 
-        locationManager = new LocationManager(state, config, display, engine);
-        
+        locationManager = new LocationManager(state, config, display);
+        locationManager.addLocationListener(engine);
+
         smsNotifier = new SMSNotifier(new WaypointManager());
-        state.addListener(smsNotifier);
+        locationManager.addLocationListener(smsNotifier);
         view.addListener(smsNotifier);
     }
 

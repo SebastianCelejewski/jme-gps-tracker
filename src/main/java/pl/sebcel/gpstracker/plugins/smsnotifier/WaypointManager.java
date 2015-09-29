@@ -5,15 +5,20 @@ import java.util.Hashtable;
 
 import javax.microedition.location.Coordinates;
 
+import pl.sebcel.gpstracker.utils.Logger;
+
 public class WaypointManager {
 
+    private final Logger log = Logger.getLogger();
     private Hashtable waypoints = new Hashtable();
 
     public WaypointManager() {
+        log.debug("[WaypointManager] Initialization.");
         restart();
     }
 
     public void restart() {
+        log.debug("[WaypointManager] Restarting route.");
         waypoints.clear();
         Waypoint p1 = new Waypoint(54.37473, 18.60453, "IHS_Global");
         Waypoint p2 = new Waypoint(54.37953, 18.58886, "Skrzyzowanie_Slowackiego_i_Partyzantow");
@@ -31,7 +36,7 @@ public class WaypointManager {
         Waypoint p14 = new Waypoint(54.357762, 18.583543, "Morena");
         Waypoint p15 = new Waypoint(54.352346, 18.575258, "Migowo");
         Waypoint p16 = new Waypoint(54.349539, 18.552796, "Wrobla_Staw");
-        		
+
         waypoints.put(p1, Boolean.FALSE);
         waypoints.put(p2, Boolean.FALSE);
         waypoints.put(p3, Boolean.FALSE);
@@ -48,9 +53,12 @@ public class WaypointManager {
         waypoints.put(p14, Boolean.FALSE);
         waypoints.put(p15, Boolean.FALSE);
         waypoints.put(p16, Boolean.FALSE);
+
+        log.debug("[WaypointManager] Loaded " + waypoints.size() + " waypoints.");
     }
 
     public String getWaypointInfo(Coordinates coordinates) {
+        log.debug("[WaypointManager] Checking coordinates: " + coordinates.getLatitude() + " " + coordinates.getLongitude());
         Enumeration keys = waypoints.keys();
 
         String info = "";
@@ -61,11 +69,14 @@ public class WaypointManager {
 
             if (distance < 50) {
                 if (!((Boolean) waypoints.get(waypoint)).booleanValue()) {
+                    log.debug("[WaypointManager] We are close to " + waypoint.getDescription());
                     info += waypoint.getDescription();
                     waypoints.put(waypoint, Boolean.TRUE);
                 }
             }
         }
+
+        log.debug("[WaypointManager] Result: " + info);
 
         return info;
     }

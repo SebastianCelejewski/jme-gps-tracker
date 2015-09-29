@@ -9,14 +9,12 @@ import javax.microedition.location.LocationListener;
 import javax.microedition.location.LocationProvider;
 import javax.microedition.location.QualifiedCoordinates;
 
-import pl.sebcel.gpstracker.events.AppStateChangeListener;
 import pl.sebcel.gpstracker.events.UserActionListener;
-import pl.sebcel.gpstracker.state.AppState;
 import pl.sebcel.gpstracker.utils.Logger;
 import pl.sebcel.gpstracker.workflow.AppWorkflow;
 import pl.sebcel.gpstracker.workflow.StatusTransition;
 
-public class SMSNotifier implements AppStateChangeListener, UserActionListener, LocationListener {
+public class SMSNotifier implements UserActionListener, LocationListener {
 
     private final Logger log = Logger.getLogger();
 
@@ -39,14 +37,14 @@ public class SMSNotifier implements AppStateChangeListener, UserActionListener, 
         }
     }
 
-    public void appStateChanged(AppState appState) {
-    }
-
     public void locationUpdated(LocationProvider provider, Location location) {
+        log.debug("[SMS Notifier] Location updated. IsValid: "+location.isValid()+", Coordinates: "+location.getQualifiedCoordinates());
         if (!location.isValid()) {
+            log.debug("[SMS Notifier] Location is not valid. Returning.");
             return;
         }
         if (location.getQualifiedCoordinates() == null) {
+            log.debug("[SMS Notifier] Location does not contain coordinates. Returingin.");
             return;
         }
         QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
