@@ -53,7 +53,7 @@ public class AppEngine implements UserActionListener, LocationListener {
     private long lastGpsUpdate = 0;
     private Thread commandThread;
     private Stack commands = new Stack();
-    
+
     private SMSNotifier smsNotifier;
 
     public AppEngine(AppState appState, Configuration config, Display display, TrackRepository trackRepository) {
@@ -62,7 +62,7 @@ public class AppEngine implements UserActionListener, LocationListener {
         this.display = display;
         this.config = config;
         this.runtime = Runtime.getRuntime();
-        
+
         this.smsNotifier = new SMSNotifier(new WaypointManager());
     }
 
@@ -103,18 +103,16 @@ public class AppEngine implements UserActionListener, LocationListener {
             public void run() {
                 while (true) {
                     synchronized (appState) {
-                        log.debug("[AppEngine] Checking if there are commands to execute");
                         if (!commands.empty()) {
-                            log.debug("[AppEngine] Executing command");
                             Runnable command = (Runnable) commands.pop();
                             command.run();
-                            log.debug("[AppEngine] Command executed");
                         }
 
                         try {
                             appState.wait();
                         } catch (Exception ex) {
-                            log.debug("[AppEngine] Command thread woken up. Commands queue length: " + commands.size());
+                            // intentional
+                            // log.debug("[AppEngine] Command thread woken up. Commands queue length: " + commands.size());
                         }
                     }
                 }
@@ -123,7 +121,7 @@ public class AppEngine implements UserActionListener, LocationListener {
 
         log.debug("[AppEngine] Starting commands thread");
         commandThread.start();
-        
+
         log.debug("[AppEngine] Initialization complete");
     }
 
@@ -206,10 +204,10 @@ public class AppEngine implements UserActionListener, LocationListener {
         long lastGpsUpdateInterval = now - lastGpsUpdate;
 
         log.debug("[AppEngine] Last GPS update interval: " + lastGpsUpdateInterval + ". Acceptable interval: " + config.getGpsLocationSingalLossTimeout() * 1000);
-        
+
         boolean tooLate = lastGpsUpdateInterval > config.getGpsLocationSingalLossTimeout() * 1000;
-        boolean statusIsAppropriateToReportLossOfSignal = appState.getGpsStatus().equals(GpsStatus.OK) || appState.getGpsStatus().equals(GpsStatus.INVALID_READING); 
-        
+        boolean statusIsAppropriateToReportLossOfSignal = appState.getGpsStatus().equals(GpsStatus.OK) || appState.getGpsStatus().equals(GpsStatus.INVALID_READING);
+
         if (tooLate && statusIsAppropriateToReportLossOfSignal) {
             log.debug("[AppEngine] Switching to Signal Lost");
             appState.setGpsStatus(GpsStatus.SIGNAL_LOST);
@@ -218,7 +216,7 @@ public class AppEngine implements UserActionListener, LocationListener {
 
     public void userSwitchedTo(StatusTransition statusTransition) {
         smsNotifier.userSwitchedTo(statusTransition);
-        
+
         System.out.println("Switching to " + statusTransition.getTargetStatus().getDisplayName() + " upon " + statusTransition.getName());
         log.debug("[AppEngine] User requested status transition " + statusTransition.getName());
         AlertType.CONFIRMATION.playSound(display);
@@ -244,20 +242,53 @@ public class AppEngine implements UserActionListener, LocationListener {
             log.debug("[AppEngine] LocationUpdated has been called, but location is null.");
             return;
         }
+        boolean isValid = location.isValid();
+        int locationMethod = location.getLocationMethod();
+        String extraInfoNmea = location.getExtraInfo("application/X-jsr179-location-nmea");
+        String extraInfoLif = location.getExtraInfo("application/X-jsr179-location-lif");
+        String extraInfoPlain = location.getExtraInfo("text/plain");
+
+        if (extraInfoNmea != null) {
+            extraInfoNmea.replace('\n', '|');
+        } else {
+            extraInfoNmea = "";
+        }
+
+        if (extraInfoLif != null) {
+            extraInfoLif.replace('\n', '|');
+        } else {
+            extraInfoLif = "";
+        }
+
+        if (extraInfoPlain != null) {
+            extraInfoPlain.replace('\n', '|');
+        } else {
+            extraInfoPlain = "";
+        }
+
+        String locationMethodInfo = getLocationMethodInfo(locationMethod);
+
+        log.debug("[AppEngine] Partial location information: " + isValid + ";" + locationMethod + ";" + extraInfoNmea + ";" + extraInfoLif + ";" + extraInfoPlain + ";" + locationMethodInfo);
 
         if (location.getQualifiedCoordinates() == null) {
             log.debug("[AppEngine] LocationUpdated has been called, but qualified coordinates are null.");
             return;
         }
 
+        if (location.getQualifiedCoordinates().getAltitude() < 0) {
+            log.debug("[AppEngine] Location information arrived but is rejected because altitude is negative.");
+            return;
+        }
+
         QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
+
         double latitude = coordinates.getLatitude();
         double longitude = coordinates.getLongitude();
         double altitude = coordinates.getAltitude();
         double horizontalAccuracy = coordinates.getHorizontalAccuracy();
         double verticalAccuracy = coordinates.getVerticalAccuracy();
 
-        log.debug("[AppEngine] Location information arrived: " + latitude + ";" + longitude + ";" + altitude + ";" + horizontalAccuracy + ";" + verticalAccuracy);
+        log.debug("[AppEngine] Location information arrived: " + latitude + ";" + longitude + ";" + altitude + ";" + horizontalAccuracy + ";" + verticalAccuracy + ";" + isValid + ";" + locationMethod + ";" + extraInfoNmea + ";" + extraInfoLif + ";" + extraInfoPlain + ";" + locationMethodInfo);
 
         if (horizontalAccuracy > config.getGpsHorizontalAccuracyForTrackPointsFiltering()) {
             log.debug("[AppEngine] Location will be ignored, because horizontal accuracy (" + horizontalAccuracy + " m) is too weak. Expected accuracy must be lower than " + config.getGpsHorizontalAccuracyForTrackPointsFiltering() + " m.");
@@ -291,6 +322,43 @@ public class AppEngine implements UserActionListener, LocationListener {
         } catch (Exception ex) {
             log.debug("[AppEngine] Failed to handle location update: " + ex.getMessage());
         }
+    }
+
+    private String getLocationMethodInfo(int locationMethod) {
+        StringBuffer result = new StringBuffer();
+
+        if ((locationMethod & Location.MTA_ASSISTED) == Location.MTA_ASSISTED) {
+            result.append("MTA_ASSISTED ");
+        }
+        if ((locationMethod & Location.MTA_UNASSISTED) == Location.MTA_UNASSISTED) {
+            result.append("MTA_UNASSISTED ");
+        }
+        if ((locationMethod & Location.MTE_ANGLEOFARRIVAL) == Location.MTE_ANGLEOFARRIVAL) {
+            result.append("MTE_ANGLEOFARRIVAL ");
+        }
+        if ((locationMethod & Location.MTE_CELLID) == Location.MTE_CELLID) {
+            result.append("MTE_CELLID ");
+        }
+        if ((locationMethod & Location.MTE_SATELLITE) == Location.MTE_SATELLITE) {
+            result.append("MTE_SATELLITE ");
+        }
+        if ((locationMethod & Location.MTE_SHORTRANGE) == Location.MTE_SHORTRANGE) {
+            result.append("MTE_SHORTRANGE ");
+        }
+        if ((locationMethod & Location.MTE_TIMEDIFFERENCE) == Location.MTE_TIMEDIFFERENCE) {
+            result.append("MTE_TIMEDIFFERENCE ");
+        }
+        if ((locationMethod & Location.MTE_TIMEOFARRIVAL) == Location.MTE_TIMEOFARRIVAL) {
+            result.append("MTE_TIMEOFARRIVAL ");
+        }
+        if ((locationMethod & Location.MTY_NETWORKBASED) == Location.MTY_NETWORKBASED) {
+            result.append("MTY_NETWORKBASED ");
+        }
+        if ((locationMethod & Location.MTY_TERMINALBASED) == Location.MTY_TERMINALBASED) {
+            result.append("MTY_TERMINALBASED ");
+        }
+
+        return result.toString();
     }
 
     public void providerStateChanged(LocationProvider provider, int newState) {

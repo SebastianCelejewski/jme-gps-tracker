@@ -1,11 +1,9 @@
 package pl.sebcel.gpstracker.plugins.smsnotifier;
 
-import java.io.InputStream;
 import java.util.Vector;
 
-import javax.microedition.location.Coordinates;
-
 import junit.framework.TestCase;
+import pl.sebcel.gpstracker.TestUtils;
 
 public class WaypointDetectionTest extends TestCase {
 
@@ -13,7 +11,7 @@ public class WaypointDetectionTest extends TestCase {
 
         WaypointManager waypointManager = new WaypointManager();
 
-        String data = loadFile("/2015-09-03_14-38-26.dta");
+        String data = TestUtils.loadFile("/2015-09-03_14-38-26.dta");
         String[] lines = split(data, "\n");
 
         for (int i = 0; i < lines.length; i++) {
@@ -27,25 +25,6 @@ public class WaypointDetectionTest extends TestCase {
                     System.out.println(info);
                 }
             }
-        }
-    }
-
-    private String loadFile(String filePath) {
-        try {
-            InputStream in = this.getClass().getResourceAsStream(filePath);
-            String data = "";
-
-            byte[] buffer = new byte[1024];
-            int bytesRead = 0;
-            do {
-                bytesRead = in.read(buffer);
-                if (bytesRead > 0) {
-                    data += new String(buffer, 0, bytesRead);
-                }
-            } while (bytesRead > 0);
-            return data;
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to read from file " + filePath + ": " + ex.getMessage());
         }
     }
 
