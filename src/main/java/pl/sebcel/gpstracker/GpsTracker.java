@@ -54,7 +54,8 @@ public class GpsTracker extends MIDlet {
         state.addListener(view);
         view.addListener(engine);
 
-        locationManager = new LocationManager(state, config, display, engine);
+        locationManager = new LocationManager(state, config, display);
+        locationManager.addLocationListener(engine);
     }
 
     protected void startApp() throws MIDletStateChangeException {
