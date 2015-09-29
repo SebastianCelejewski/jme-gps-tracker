@@ -30,23 +30,25 @@ public class SMSNotifier implements AppStateChangeListener, UserActionListener, 
     public void userSwitchedTo(StatusTransition statusTransition) {
         if (statusTransition.equals(AppWorkflow.START)) {
             log.debug("[SMS Notifier] Starting recording new track.");
+            waypointManager.restart();
             sendMessage("Start");
         }
         if (statusTransition.equals(AppWorkflow.STOP)) {
             log.debug("[SMS Notifier] Stopped recording track.");
             sendMessage("Stop");
         }
-
     }
 
     public void appStateChanged(AppState appState) {
     }
 
-    public void restart() {
-        waypointManager.restart();
-    }
-
     public void locationUpdated(LocationProvider provider, Location location) {
+        if (!location.isValid()) {
+            return;
+        }
+        if (location.getQualifiedCoordinates() == null) {
+            return;
+        }
         QualifiedCoordinates coordinates = location.getQualifiedCoordinates();
         String message = waypointManager.getWaypointInfo(coordinates);
         if (message != null && message.trim().length() > 0) {

@@ -17,8 +17,6 @@ import pl.sebcel.gpstracker.config.Configuration;
 import pl.sebcel.gpstracker.events.UserActionListener;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
-import pl.sebcel.gpstracker.plugins.smsnotifier.SMSNotifier;
-import pl.sebcel.gpstracker.plugins.smsnotifier.WaypointManager;
 import pl.sebcel.gpstracker.repository.TrackRepository;
 import pl.sebcel.gpstracker.state.AppState;
 import pl.sebcel.gpstracker.state.AppStatus;
@@ -54,16 +52,12 @@ public class AppEngine implements UserActionListener, LocationListener {
     private Thread commandThread;
     private Stack commands = new Stack();
 
-    private SMSNotifier smsNotifier;
-
     public AppEngine(AppState appState, Configuration config, Display display, TrackRepository trackRepository) {
         this.appState = appState;
         this.trackRepository = trackRepository;
         this.display = display;
         this.config = config;
         this.runtime = Runtime.getRuntime();
-
-        this.smsNotifier = new SMSNotifier(new WaypointManager());
     }
 
     public void init() {
@@ -140,7 +134,6 @@ public class AppEngine implements UserActionListener, LocationListener {
 
                 System.out.println("Started recording track " + currentTrack.getId());
                 appState.setAppStatus(AppStatus.STARTED);
-                smsNotifier.restart();
                 log.debug("[AppEngine] Track recording started");
             }
         };
@@ -215,8 +208,6 @@ public class AppEngine implements UserActionListener, LocationListener {
     }
 
     public void userSwitchedTo(StatusTransition statusTransition) {
-        smsNotifier.userSwitchedTo(statusTransition);
-
         System.out.println("Switching to " + statusTransition.getTargetStatus().getDisplayName() + " upon " + statusTransition.getName());
         log.debug("[AppEngine] User requested status transition " + statusTransition.getName());
         AlertType.CONFIRMATION.playSound(display);
@@ -318,7 +309,6 @@ public class AppEngine implements UserActionListener, LocationListener {
                 currentTrackPoints.addElement(point);
             }
             appState.setInfo("" + currentTrack.getPoints().size());
-            smsNotifier.locationUpdated(provider, location);
         } catch (Exception ex) {
             log.debug("[AppEngine] Failed to handle location update: " + ex.getMessage());
         }

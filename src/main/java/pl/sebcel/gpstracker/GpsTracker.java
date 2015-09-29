@@ -11,6 +11,8 @@ import pl.sebcel.gpstracker.gpx.GpxSerializer;
 import pl.sebcel.gpstracker.gui.AppModel;
 import pl.sebcel.gpstracker.gui.AppView;
 import pl.sebcel.gpstracker.location.LocationManager;
+import pl.sebcel.gpstracker.plugins.smsnotifier.SMSNotifier;
+import pl.sebcel.gpstracker.plugins.smsnotifier.WaypointManager;
 import pl.sebcel.gpstracker.repository.TrackRepository;
 import pl.sebcel.gpstracker.state.AppState;
 import pl.sebcel.gpstracker.state.AppStatus;
@@ -36,6 +38,7 @@ public class GpsTracker extends MIDlet {
     private AppEngine engine;
     private AppModel model;
     private LocationManager locationManager;
+    private SMSNotifier smsNotifier;
 
     public GpsTracker() {
         log.debug("[GpsTracker] initialization");
@@ -55,6 +58,10 @@ public class GpsTracker extends MIDlet {
         view.addListener(engine);
 
         locationManager = new LocationManager(state, config, display, engine);
+        
+        smsNotifier = new SMSNotifier(new WaypointManager());
+        state.addListener(smsNotifier);
+        view.addListener(smsNotifier);
     }
 
     protected void startApp() throws MIDletStateChangeException {
