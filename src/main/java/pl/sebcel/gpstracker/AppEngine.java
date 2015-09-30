@@ -259,15 +259,15 @@ public class AppEngine implements UserActionListener, LocationListener {
 
         String locationMethodInfo = getLocationMethodInfo(locationMethod);
 
-        log.debug("[AppEngine] Partial location information: " + isValid + ";" + locationMethod + ";" + extraInfoNmea + ";" + extraInfoLif + ";" + extraInfoPlain + ";" + locationMethodInfo);
-
         if (location.getQualifiedCoordinates() == null) {
             log.debug("[AppEngine] LocationUpdated has been called, but qualified coordinates are null.");
+            log.debug("[AppEngine] Partial location information: " + isValid + ";" + locationMethod + ";" + extraInfoNmea + ";" + extraInfoLif + ";" + extraInfoPlain + ";" + locationMethodInfo);
             return;
         }
 
         if (location.getQualifiedCoordinates().getAltitude() < 0) {
             log.debug("[AppEngine] Location information arrived but is rejected because altitude is negative.");
+            log.debug("[AppEngine] Partial location information: " + isValid + ";" + locationMethod + ";" + extraInfoNmea + ";" + extraInfoLif + ";" + extraInfoPlain + ";" + locationMethodInfo);
             return;
         }
 
