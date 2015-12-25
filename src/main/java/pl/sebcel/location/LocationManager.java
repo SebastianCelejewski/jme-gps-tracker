@@ -66,7 +66,7 @@ public class LocationManager implements LocationListener {
                 while (true) {
                     checkIfGpsSignalIsLost();
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(config.getGpsLocationSingalLossTimeout() * 1000);
                     } catch (Exception ex) {
                         // intentional
                     }
@@ -158,8 +158,6 @@ public class LocationManager implements LocationListener {
 
                 log.debug("[LocationManager] LocationProvider found. " + locationProvider.getClass());
                 log.debug("[LocationManager] Config: " + config.toString());
-                locationProvider.setLocationListener(LocationManager.this, config.getGpsLocationInterval(), config.getGpsLocationInterval(), config.getGpsLocationInterval());
-                log.debug("[LocationManager] Location listener set");
                 Location location = locationProvider.getLocation(config.getGpsLocationFindTimeout());
                 Date locationManagerInitializationEndTime = new Date();
                 long locationManagerInitializationDuration = (locationManagerInitializationEndTime.getTime() - locationProviderInitializationStartTime.getTime()) / 1000;
@@ -168,6 +166,11 @@ public class LocationManager implements LocationListener {
                 setGpsStatus(GpsStatus.OK);
                 locationUpdated(locationProvider, location);
                 locationFound = true;
+
+                log.debug("[LocationManager] Registering location listener");
+                locationProvider.setLocationListener(LocationManager.this, config.getGpsLocationInterval(), config.getGpsLocationInterval(), config.getGpsLocationInterval());
+                log.debug("[LocationManager] Location listener successfully registered");
+
             } catch (Exception ex) {
                 log.debug("[LocationManager] Failed to find location: " + ex.getClass() + ", " + ex.getMessage());
                 try {
