@@ -9,11 +9,11 @@ import javax.microedition.lcdui.Graphics;
 import pl.sebcel.gpstracker.AppColor;
 import pl.sebcel.gpstracker.events.AppStateChangeListener;
 import pl.sebcel.gpstracker.events.UserActionListener;
-import pl.sebcel.gpstracker.state.AppStatus;
-import pl.sebcel.gpstracker.state.GpsStatus;
 import pl.sebcel.gpstracker.utils.Logger;
-import pl.sebcel.gpstracker.workflow.AppWorkflow;
-import pl.sebcel.gpstracker.workflow.StatusTransition;
+import pl.sebcel.gpstracker.workflow.WorkflowStatus;
+import pl.sebcel.gpstracker.workflow.GpsTrackerWorkflow;
+import pl.sebcel.gpstracker.workflow.WorkflowTransition;
+import pl.sebcel.location.GpsStatus;
 
 public class AppView extends Canvas implements AppStateChangeListener {
 
@@ -21,7 +21,7 @@ public class AppView extends Canvas implements AppStateChangeListener {
 
     private AppModel model;
     private int selectedTransition = 0;
-    private AppWorkflow workflow = new AppWorkflow();
+    private GpsTrackerWorkflow workflow = new GpsTrackerWorkflow();
     private Vector listeners = new Vector();
 
     public AppView(AppModel model) {
@@ -42,7 +42,7 @@ public class AppView extends Canvas implements AppStateChangeListener {
         g.fillRect(0, 0, width, height);
 
         GpsStatus gpsStatus = model.getAppState().getGpsStatus();
-        AppStatus appStatus = model.getAppState().getAppStatus();
+        WorkflowStatus appStatus = model.getAppState().getAppStatus();
 
         AppColor appStatusColor = appStatus.getColor();
         int boxMargin = 10;
@@ -61,7 +61,7 @@ public class AppView extends Canvas implements AppStateChangeListener {
         g.drawString("GPS: " + gpsStatus.getDisplayName(), 5, boxHeight + 40, Graphics.TOP | Graphics.LEFT);
         g.drawString("Info: " + model.getAppState().getInfo(), 5, boxHeight + 60, Graphics.TOP | Graphics.LEFT);
 
-        StatusTransition[] availableTransitions = workflow.getAvailableTransitions(appStatus);
+        WorkflowTransition[] availableTransitions = workflow.getAvailableTransitions(appStatus);
         int i = boxHeight + 80;
         for (int k = 0; k < availableTransitions.length; k++) {
             g.setColor(255, 255, 255);
@@ -88,7 +88,7 @@ public class AppView extends Canvas implements AppStateChangeListener {
     }
 
     protected void keyPressed(int keyCode) {
-        StatusTransition[] availableTransitions = workflow.getAvailableTransitions(model.getAppState().getAppStatus());
+        WorkflowTransition[] availableTransitions = workflow.getAvailableTransitions(model.getAppState().getAppStatus());
 
         if (getGameAction(keyCode) == Canvas.DOWN && selectedTransition < availableTransitions.length - 1) {
             selectedTransition += 1;
@@ -97,7 +97,7 @@ public class AppView extends Canvas implements AppStateChangeListener {
             selectedTransition -= 1;
         }
         if (getGameAction(keyCode) == Canvas.FIRE && availableTransitions.length > 0) {
-            StatusTransition statusTransition = availableTransitions[selectedTransition];
+            WorkflowTransition statusTransition = availableTransitions[selectedTransition];
             notifyListeners(statusTransition);
             selectedTransition = 0;
         }
@@ -108,7 +108,7 @@ public class AppView extends Canvas implements AppStateChangeListener {
         this.repaint();
     }
 
-    private void notifyListeners(StatusTransition statusTransition) {
+    private void notifyListeners(WorkflowTransition statusTransition) {
         for (int i = 0; i < listeners.size(); i++) {
             UserActionListener listener = (UserActionListener) listeners.elementAt(i);
             listener.userSwitchedTo(statusTransition);

@@ -1,15 +1,15 @@
 package pl.sebcel.gpstracker.config;
 
 import pl.sebcel.gpstracker.utils.Logger;
+import pl.sebcel.location.LocationManagerConfiguration;
 
 public class ConfigurationProvider {
 
     private final Logger log = Logger.getLogger();
 
-    public Configuration getConfiguration() {
-        Configuration config = new Configuration();
+    public LocationManagerConfiguration getConfiguration() {
+        LocationManagerConfiguration config = new LocationManagerConfiguration();
         config.setGpsLocationInterval(5);
-        config.setSaveInterval(20);
         config.setGpsHorizontalAccuracyForLocationProvider(500);
         config.setGpsHorizontalAccuracyForTrackPointsFiltering(60);
         config.setGpsLocationFindTimeout(600);
@@ -19,6 +19,12 @@ public class ConfigurationProvider {
         log.debug("[ConfigurationProvider] Current configuration: ");
         log.debug(config.toString());
 
+        return config;
+    }
+
+    public GpsTrackerConfiguration getGpsTrackerConfiguration() {
+        GpsTrackerConfiguration config = new GpsTrackerConfiguration();
+        config.setSaveInterval(20);
         return config;
     }
 }

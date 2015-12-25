@@ -3,15 +3,17 @@ package pl.sebcel.gpstracker.state;
 import java.util.Vector;
 
 import pl.sebcel.gpstracker.events.AppStateChangeListener;
+import pl.sebcel.gpstracker.workflow.WorkflowStatus;
+import pl.sebcel.location.GpsStatus;
 
 public class AppState {
 
-    private AppStatus appStatus;
+    private WorkflowStatus appStatus;
     private GpsStatus gpsStatus;
     private String info;
     private Vector listeners = new Vector();
 
-    public AppState(AppStatus initialAppStatus, GpsStatus initialGpsStatus) {
+    public AppState(WorkflowStatus initialAppStatus, GpsStatus initialGpsStatus) {
         this.appStatus = initialAppStatus;
         this.gpsStatus = initialGpsStatus;
         this.info = "";
@@ -21,7 +23,7 @@ public class AppState {
         listeners.addElement(listener);
     }
 
-    public AppStatus getAppStatus() {
+    public WorkflowStatus getAppStatus() {
         return appStatus;
     }
 
@@ -33,7 +35,7 @@ public class AppState {
         return info;
     }
 
-    public void setAppStatus(AppStatus appStatus) {
+    public void setAppStatus(WorkflowStatus appStatus) {
         this.appStatus = appStatus;
         notifyListeners();
     }

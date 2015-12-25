@@ -1,8 +1,7 @@
-package pl.sebcel.gpstracker.config;
+package pl.sebcel.location;
 
-public class Configuration {
+public class LocationManagerConfiguration {
 
-    private int saveInterval;
     private int gpsLocationInterval;
     private int gpsLocationSingalLossTimeout;
     private int gpsHorizontalAccuracyForLocationProvider;
@@ -16,14 +15,6 @@ public class Configuration {
 
     public void setGpsLocationInterval(int gpsLocationInterval) {
         this.gpsLocationInterval = gpsLocationInterval;
-    }
-
-    public int getSaveInterval() {
-        return saveInterval;
-    }
-
-    public void setSaveInterval(int saveInterval) {
-        this.saveInterval = saveInterval;
     }
 
     public int getGpsHorizontalAccuracyForLocationProvider() {
@@ -67,7 +58,7 @@ public class Configuration {
     }
 
     public String toString() {
-        return "Configuration [locationInterval=" + gpsLocationInterval + ", saveInterval=" + saveInterval + ", gpsHorizontalAccuracy=" + gpsHorizontalAccuracyForLocationProvider + ", gpsLocationFindTimeout=" + gpsLocationFindTimeout + ", gpsLocationFindRetryDelay=" + gpsLocationFindRetryDelay + "]";
+        return "Configuration [locationInterval=" + gpsLocationInterval + ", gpsHorizontalAccuracy=" + gpsHorizontalAccuracyForLocationProvider + ", gpsLocationFindTimeout=" + gpsLocationFindTimeout + ", gpsLocationFindRetryDelay=" + gpsLocationFindRetryDelay + "]";
     }
 
 }
