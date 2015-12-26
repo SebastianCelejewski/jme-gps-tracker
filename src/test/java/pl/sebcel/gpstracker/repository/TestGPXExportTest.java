@@ -2,14 +2,14 @@ package pl.sebcel.gpstracker.repository;
 
 import java.util.Date;
 
-import pl.sebcel.gpstracker.gpx.JSR280GpxSerializer;
+import junit.framework.TestCase;
+import pl.sebcel.gpstracker.export.gpx.JSR280GpxSerializer;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
-import junit.framework.TestCase;
 
 public class TestGPXExportTest extends TestCase {
 
-    public void testHopsaTest() {
+    public void manualGpsExportTest() {
         String trackId = "track-id";
         Date date1 = new Date();
         Date date2 = new Date(date1.getTime() + 30000);
@@ -22,6 +22,5 @@ public class TestGPXExportTest extends TestCase {
 
         String output = serializer.serialize(track);
         System.out.println(output);
-
     }
 }

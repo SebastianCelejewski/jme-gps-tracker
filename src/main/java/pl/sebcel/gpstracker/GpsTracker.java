@@ -4,14 +4,11 @@ import javax.microedition.lcdui.Display;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
-import pl.sebcel.gpstracker.config.ConfigurationProvider;
-import pl.sebcel.gpstracker.config.GpsTrackerConfiguration;
-import pl.sebcel.gpstracker.gpx.CustomGpxSerializer;
-import pl.sebcel.gpstracker.gpx.GpxSerializer;
+import pl.sebcel.gpstracker.export.gpx.CustomGpxSerializer;
+import pl.sebcel.gpstracker.export.gpx.GpxSerializer;
 import pl.sebcel.gpstracker.gui.AppModel;
 import pl.sebcel.gpstracker.gui.AppView;
-import pl.sebcel.gpstracker.repository.TrackRepository;
-import pl.sebcel.gpstracker.state.AppState;
+import pl.sebcel.gpstracker.model.TrackRepository;
 import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
 import pl.sebcel.gpstracker.workflow.WorkflowStatus;
@@ -39,7 +36,7 @@ public class GpsTracker extends MIDlet {
     private LocationManager locationManager;
 
     public GpsTracker() {
-        log.debug("[GpsTracker] initialization");
+        log.debug("[GpsTracker] Midlet initialization started");
         this.display = Display.getDisplay(this);
 
         ConfigurationProvider configurationProvider = new ConfigurationProvider();
@@ -59,20 +56,22 @@ public class GpsTracker extends MIDlet {
         locationManager = new LocationManager(locationManagerConfig);
         locationManager.addLocationListener(engine);
         locationManager.addStatusListener(engine);
+
+        log.debug("[GpsTracker] Midlet initialization complete");
     }
 
     protected void startApp() throws MIDletStateChangeException {
-        log.debug("[GpsTracker] startApp");
+        log.debug("[GpsTracker] Midlet event: startApp");
         this.display.setCurrent(view);
         engine.init();
         locationManager.initialize();
     }
 
-    protected void destroyApp(boolean arg0) throws MIDletStateChangeException {
-        log.debug("[GpsTracker] destroyApp");
+    protected void destroyApp(boolean unconditional) throws MIDletStateChangeException {
+        log.debug("[GpsTracker] Midlet event: destroyApp (unconditional=" + unconditional + ")");
     }
 
     protected void pauseApp() {
-        log.debug("[GpsTracker] pauseApp");
+        log.debug("[GpsTracker] Midlet event: pauseApp");
     }
 }

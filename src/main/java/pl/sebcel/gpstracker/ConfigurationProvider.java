@@ -1,4 +1,4 @@
-package pl.sebcel.gpstracker.config;
+package pl.sebcel.gpstracker;
 
 import pl.sebcel.gpstracker.utils.Logger;
 import pl.sebcel.location.LocationManagerConfiguration;
@@ -16,7 +16,7 @@ public class ConfigurationProvider {
         config.setGpsLocationFindRetryDelay(10);
         config.setGpsLocationSingalLossTimeout(15);
 
-        log.debug("[ConfigurationProvider] Current configuration: ");
+        log.debug("[ConfigurationProvider] Current GPS Tracker configuration: ");
         log.debug(config.toString());
 
         return config;
@@ -25,6 +25,10 @@ public class ConfigurationProvider {
     public GpsTrackerConfiguration getGpsTrackerConfiguration() {
         GpsTrackerConfiguration config = new GpsTrackerConfiguration();
         config.setSaveInterval(20);
+
+        log.debug("[ConfigurationProvider] Current Location Manager configuration: ");
+        log.debug(config.toString());
+
         return config;
     }
 }

@@ -1,4 +1,4 @@
-package pl.sebcel.gpstracker.gpx;
+package pl.sebcel.gpstracker.export.gpx;
 
 import pl.sebcel.gpstracker.model.Track;
 

@@ -37,7 +37,7 @@ public class AppView extends Canvas implements AppStateChangeListener {
     protected void paint(Graphics g) {
         int width = this.getWidth();
         int height = this.getHeight();
-        
+
         g.setColor(0, 0, 0);
         g.fillRect(0, 0, width, height);
 
@@ -73,15 +73,10 @@ public class AppView extends Canvas implements AppStateChangeListener {
             i = i + 20;
         }
 
-        System.out.println("AppView is about to enter synchronized block");
-        System.out.println("Semaphor: "+model.getAppState());
         synchronized (model.getAppState()) {
-            System.out.println("AppView entered synchronized block and is about to notify all");
             model.getAppState().notifyAll();
-            System.out.println("AppView notified all is about to exit synchronized block");
         }
-        System.out.println("AppView exited synchronized block");
-        
+
         synchronized (model.getAppState()) {
             model.getAppState().notifyAll();
         }

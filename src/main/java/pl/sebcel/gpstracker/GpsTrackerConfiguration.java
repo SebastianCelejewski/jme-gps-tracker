@@ -1,6 +1,7 @@
-package pl.sebcel.gpstracker.config;
+package pl.sebcel.gpstracker;
 
 public class GpsTrackerConfiguration {
+
     private int saveInterval;
 
     public int getSaveInterval() {
@@ -9,5 +10,9 @@ public class GpsTrackerConfiguration {
 
     public void setSaveInterval(int saveInterval) {
         this.saveInterval = saveInterval;
+    }
+
+    public String toString() {
+        return "SaveInterval:" + saveInterval;
     }
 }

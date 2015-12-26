@@ -1,4 +1,4 @@
-package pl.sebcel.gpstracker.repository;
+package pl.sebcel.gpstracker.model;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,9 +9,7 @@ import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 
-import pl.sebcel.gpstracker.gpx.GpxSerializer;
-import pl.sebcel.gpstracker.model.Track;
-import pl.sebcel.gpstracker.model.TrackPoint;
+import pl.sebcel.gpstracker.export.gpx.GpxSerializer;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
@@ -75,24 +73,17 @@ public class TrackRepository {
 
         try {
             String uri = "file:///" + root + fileName;
-            System.out.println("Tryging to save" + uri);
             FileConnection fconn = (FileConnection) Connector.open(uri);
-            System.out.println("We have file connection: " + fconn);
             if (!fconn.exists()) {
-                System.out.println("File does not exist. Tryging to create it");
-                fconn.create(); // create the file if it doesn't exist
-                System.out.println("OK!");
-            } else {
-                System.out.println("File already exists");
+                log.debug("File " + fileName + " does not exist. Creating new file.");
+                fconn.create();
             }
-
-            System.out.println("Writing to file");
 
             String xml = gpxSerializer.serialize(track);
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             PrintStream out = new PrintStream(buffer);
             out.println(xml);
-            System.out.println("Closing file ");
+
             byte[] data = buffer.toByteArray();
             fconn.openOutputStream().write(data);
             fconn.close();

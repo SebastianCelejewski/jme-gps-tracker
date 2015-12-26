@@ -58,7 +58,7 @@ public class LocationManagerConfiguration {
     }
 
     public String toString() {
-        return "Configuration [locationInterval=" + gpsLocationInterval + ", gpsHorizontalAccuracy=" + gpsHorizontalAccuracyForLocationProvider + ", gpsLocationFindTimeout=" + gpsLocationFindTimeout + ", gpsLocationFindRetryDelay=" + gpsLocationFindRetryDelay + "]";
+        return "LocationInterval:" + gpsLocationInterval + ", gpsHorizontalAccuracy:" + gpsHorizontalAccuracyForLocationProvider + ", gpsLocationFindTimeout:" + gpsLocationFindTimeout + ", gpsLocationFindRetryDelay:" + gpsLocationFindRetryDelay;
     }
 
 }

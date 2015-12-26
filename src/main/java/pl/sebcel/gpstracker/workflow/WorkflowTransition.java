@@ -9,7 +9,7 @@ public class WorkflowTransition {
     public static final WorkflowTransition RESUME = new WorkflowTransition(4, "Resume", WorkflowStatus.STARTED);
     public static final WorkflowTransition STOP = new WorkflowTransition(5, "Stop", WorkflowStatus.STOPPED);
     public static final WorkflowTransition ABORT = new WorkflowTransition(6, "Abort", WorkflowStatus.READY);
-    
+
     private int id;
     private WorkflowStatus targetStatus;
     private String name;

@@ -10,12 +10,10 @@ import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Display;
 import javax.microedition.location.QualifiedCoordinates;
 
-import pl.sebcel.gpstracker.config.GpsTrackerConfiguration;
 import pl.sebcel.gpstracker.events.UserActionListener;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
-import pl.sebcel.gpstracker.repository.TrackRepository;
-import pl.sebcel.gpstracker.state.AppState;
+import pl.sebcel.gpstracker.model.TrackRepository;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.Logger;
 import pl.sebcel.gpstracker.workflow.WorkflowStatus;
@@ -40,12 +38,12 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     private AppState appState;
     private Track currentTrack;
     private TrackRepository trackRepository;
-    private Thread autosaveThread;
     private Display display;
     private Vector currentTrackPoints;
     private GpsTrackerConfiguration gpsTrackerConfig;
     private boolean alreadyInitialized = false;
-    private Runtime runtime;
+
+    private Thread autosaveThread;
     private Thread commandThread;
     private Stack commands = new Stack();
 
@@ -54,7 +52,6 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         this.trackRepository = trackRepository;
         this.display = display;
         this.gpsTrackerConfig = gpsTrackerConfig;
-        this.runtime = Runtime.getRuntime();
     }
 
     public void init() {
@@ -103,7 +100,6 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
                             appState.wait();
                         } catch (Exception ex) {
                             // intentional
-                            // log.debug("[AppEngine] Command thread woken up. Commands queue length: " + commands.size());
                         }
                     }
                 }
@@ -121,7 +117,6 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         appState.setAppStatus(WorkflowStatus.STARTING);
 
         Runnable command = new Runnable() {
-
             public void run() {
                 Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 String trackId = DateFormat.format(currentDate.getTime());
@@ -129,7 +124,6 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
                 currentTrack = new Track(trackId, new Date());
                 trackRepository.createNewTrack(currentTrack);
 
-                System.out.println("Started recording track " + currentTrack.getId());
                 appState.setAppStatus(WorkflowStatus.STARTED);
                 log.debug("[AppEngine] Track recording started");
             }
@@ -143,7 +137,6 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         appState.setAppStatus(WorkflowStatus.STOPPING);
 
         Runnable command = new Runnable() {
-
             public void run() {
                 save();
 
@@ -190,7 +183,6 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     }
 
     public void userSwitchedTo(WorkflowTransition statusTransition) {
-        System.out.println("Switching to " + statusTransition.getTargetStatus().getDisplayName() + " upon " + statusTransition.getName());
         log.debug("[AppEngine] User requested status transition " + statusTransition.getName());
         AlertType.CONFIRMATION.playSound(display);
         if (statusTransition.equals(WorkflowTransition.START)) {
@@ -211,6 +203,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     }
 
     private String getMemoryUtilization() {
+        Runtime runtime = Runtime.getRuntime();
         long totalMemory = runtime.totalMemory();
         long freeMemory = runtime.freeMemory();
         long usedMemory = totalMemory - freeMemory;
@@ -243,7 +236,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         } catch (Exception ex) {
             log.debug("[AppEngine] Failed to handle location update: " + ex.getMessage());
         }
-   }
+    }
 
     public void stateChanged(GpsStatus gpsStatus) {
         appState.setGpsStatus(gpsStatus);

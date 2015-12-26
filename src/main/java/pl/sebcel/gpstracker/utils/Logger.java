@@ -29,9 +29,8 @@ public class Logger {
             String uri = "file:///" + root + fileName;
             FileConnection fconn = (FileConnection) Connector.open(uri);
             if (!fconn.exists()) {
-                fconn.create(); // create the file if it doesn't exist
+                fconn.create();
             }
-
             out = new PrintStream(fconn.openOutputStream());
         } catch (Exception ex) {
             System.err.println("Failed to create log file " + fileName);
