@@ -13,7 +13,7 @@ import javax.microedition.location.QualifiedCoordinates;
 import pl.sebcel.gpstracker.events.UserActionListener;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
-import pl.sebcel.gpstracker.model.TrackRepository;
+import pl.sebcel.gpstracker.plugins.PluginRegistry;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.Logger;
 import pl.sebcel.gpstracker.workflow.WorkflowStatus;
@@ -37,7 +37,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
 
     private AppState appState;
     private Track currentTrack;
-    private TrackRepository trackRepository;
+    private PluginRegistry pluginRegistry;
     private Display display;
     private Vector currentTrackPoints;
     private GpsTrackerConfiguration gpsTrackerConfig;
@@ -47,9 +47,9 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     private Thread commandThread;
     private Stack commands = new Stack();
 
-    public AppEngine(AppState appState, GpsTrackerConfiguration gpsTrackerConfig, Display display, TrackRepository trackRepository) {
+    public AppEngine(AppState appState, GpsTrackerConfiguration gpsTrackerConfig, Display display, PluginRegistry pluginRegistry) {
         this.appState = appState;
-        this.trackRepository = trackRepository;
+        this.pluginRegistry = pluginRegistry;
         this.display = display;
         this.gpsTrackerConfig = gpsTrackerConfig;
     }
@@ -122,7 +122,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
                 String trackId = DateFormat.format(currentDate.getTime());
                 currentTrackPoints = new Vector();
                 currentTrack = new Track(trackId, new Date());
-                trackRepository.createNewTrack(currentTrack);
+                pluginRegistry.newTrackCreated(currentTrack);
 
                 appState.setAppStatus(WorkflowStatus.STARTED);
                 log.debug("[AppEngine] Track recording started");
@@ -141,7 +141,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
                 save();
 
                 appState.setInfo("Exporting track to GPX");
-                trackRepository.saveTrack(currentTrack);
+                pluginRegistry.trackCompleted(currentTrack);
                 currentTrack = null;
                 appState.setAppStatus(WorkflowStatus.STOPPED);
                 appState.setInfo("Track exported to GPX");
@@ -156,7 +156,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         appState.setInfo("Saving track");
         AlertType.WARNING.playSound(display);
         synchronized (currentTrack) {
-            trackRepository.appendTrackPoints(currentTrack, currentTrackPoints);
+            pluginRegistry.trackUpdated(currentTrack, currentTrackPoints);
             currentTrackPoints = new Vector();
         }
         AlertType.WARNING.playSound(display);

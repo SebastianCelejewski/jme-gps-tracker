@@ -8,7 +8,9 @@ import pl.sebcel.gpstracker.export.gpx.CustomGpxSerializer;
 import pl.sebcel.gpstracker.export.gpx.GpxSerializer;
 import pl.sebcel.gpstracker.gui.AppModel;
 import pl.sebcel.gpstracker.gui.AppView;
-import pl.sebcel.gpstracker.model.TrackRepository;
+import pl.sebcel.gpstracker.plugins.PluginRegistry;
+import pl.sebcel.gpstracker.plugins.dtafile.DtaFileExporter;
+import pl.sebcel.gpstracker.plugins.gpxfile.GpxFileExporter;
 import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
 import pl.sebcel.gpstracker.workflow.WorkflowStatus;
@@ -45,10 +47,14 @@ public class GpsTracker extends MIDlet {
         AppState state = new AppState(WorkflowStatus.UNINITIALIZED, GpsStatus.UNINITIALIZED);
         GpxSerializer gpxSerializer = new CustomGpxSerializer();
         FileUtils fileUtils = new FileUtils();
-        TrackRepository trackRepository = new TrackRepository(gpxSerializer, fileUtils);
+        PluginRegistry pluginRegistry = new PluginRegistry();
+        DtaFileExporter dtaFileExporter = new DtaFileExporter(fileUtils);
+        GpxFileExporter gpxFileExporter = new GpxFileExporter(fileUtils, gpxSerializer);
+        pluginRegistry.addTrackListener(dtaFileExporter);
+        pluginRegistry.addTrackListener(gpxFileExporter);
         model = new AppModel(state);
         view = new AppView(model);
-        engine = new AppEngine(state, gpsTrackerConfig, display, trackRepository);
+        engine = new AppEngine(state, gpsTrackerConfig, display, pluginRegistry);
 
         state.addListener(view);
         view.addListener(engine);

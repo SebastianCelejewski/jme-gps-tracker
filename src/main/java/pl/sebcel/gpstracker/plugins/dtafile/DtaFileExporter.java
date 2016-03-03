@@ -1,7 +1,5 @@
-package pl.sebcel.gpstracker.model;
+package pl.sebcel.gpstracker.plugins.dtafile;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.Vector;
@@ -9,25 +7,25 @@ import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 
-import pl.sebcel.gpstracker.export.gpx.GpxSerializer;
+import pl.sebcel.gpstracker.model.Track;
+import pl.sebcel.gpstracker.model.TrackPoint;
+import pl.sebcel.gpstracker.plugins.TrackListener;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
 
-public class TrackRepository {
+public class DtaFileExporter implements TrackListener {
 
     private final Logger log = Logger.getLogger();
 
-    private GpxSerializer gpxSerializer;
     private PrintStream writer;
     private FileUtils fileUtils;
 
-    public TrackRepository(GpxSerializer gpxSerializer, FileUtils fileUtils) {
-        this.gpxSerializer = gpxSerializer;
+    public DtaFileExporter(FileUtils fileUtils) {
         this.fileUtils = fileUtils;
     }
 
-    public void createNewTrack(Track track) {
+    public void onNewTrackCreated(Track track) {
         try {
             String root = fileUtils.findRoot();
             String fileName = DateFormat.getFilename(track.getStartDate(), "", "dta");
@@ -40,7 +38,7 @@ public class TrackRepository {
         }
     }
 
-    public void appendTrackPoints(Track track, Vector trackPoints) {
+    public void onTrackUpdated(Track track, Vector trackPoints) {
         StringBuffer data = new StringBuffer();
         Date startTime = new Date();
 
@@ -65,34 +63,6 @@ public class TrackRepository {
         log.debug("[TrackRepository] Saved " + trackPoints.size() + " track points (" + dataBytes.length + " bytes, " + duration + " ms)");
     }
 
-    public void saveTrack(Track track) {
-        log.debug("[TrackRepository] Saving track " + track.getId());
-        Date startTime = new Date();
-        String root = fileUtils.findRoot();
-        String fileName = DateFormat.getFilename(track.getStartDate(), "", "gpx");
-
-        try {
-            String uri = "file:///" + root + fileName;
-            FileConnection fconn = (FileConnection) Connector.open(uri);
-            if (!fconn.exists()) {
-                log.debug("File " + fileName + " does not exist. Creating new file.");
-                fconn.create();
-            }
-
-            String xml = gpxSerializer.serialize(track);
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            PrintStream out = new PrintStream(buffer);
-            out.println(xml);
-
-            byte[] data = buffer.toByteArray();
-            fconn.openOutputStream().write(data);
-            fconn.close();
-            Date endTime = new Date();
-            long duration = endTime.getTime() - startTime.getTime();
-
-            log.debug("[TrackRepository] Track " + track.getId() + " saved (" + track.getPoints().size() + " points, " + data.length + " bytes, " + duration + " ms)");
-        } catch (IOException ioe) {
-            log.debug("[TrackRepository] Failed to save track " + track.getId() + ": " + ioe.getMessage());
-        }
+    public void onTrackCompleted(Track track) {
     }
 }
