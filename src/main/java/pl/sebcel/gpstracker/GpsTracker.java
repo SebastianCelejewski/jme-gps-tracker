@@ -10,6 +10,7 @@ import pl.sebcel.gpstracker.gui.AppModel;
 import pl.sebcel.gpstracker.gui.AppView;
 import pl.sebcel.gpstracker.plugins.PluginRegistry;
 import pl.sebcel.gpstracker.plugins.dtafile.DtaFileExporter;
+import pl.sebcel.gpstracker.plugins.endomondo.EndomondoConnector;
 import pl.sebcel.gpstracker.plugins.gpxfile.GpxFileExporter;
 import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
@@ -28,6 +29,8 @@ import pl.sebcel.location.LocationManagerConfiguration;
  * @author Sebastian Celejewski
  */
 public class GpsTracker extends MIDlet {
+    
+    public final static String version = "0.4";
 
     private final Logger log = Logger.getLogger();
 
@@ -50,8 +53,10 @@ public class GpsTracker extends MIDlet {
         PluginRegistry pluginRegistry = new PluginRegistry();
         DtaFileExporter dtaFileExporter = new DtaFileExporter(fileUtils);
         GpxFileExporter gpxFileExporter = new GpxFileExporter(fileUtils, gpxSerializer);
-        pluginRegistry.addTrackListener(dtaFileExporter);
-        pluginRegistry.addTrackListener(gpxFileExporter);
+        EndomondoConnector endomondoConnector = new EndomondoConnector();
+        pluginRegistry.addPlugin(dtaFileExporter);
+        pluginRegistry.addPlugin(gpxFileExporter);
+        pluginRegistry.addPlugin(endomondoConnector);
         model = new AppModel(state);
         view = new AppView(model);
         engine = new AppEngine(state, gpsTrackerConfig, display, pluginRegistry);

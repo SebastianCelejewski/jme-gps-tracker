@@ -4,7 +4,7 @@ import java.util.Vector;
 
 import pl.sebcel.gpstracker.model.Track;
 
-public interface TrackListener {
+public interface GpsTrackerPlugin {
 
     public void onNewTrackCreated(Track track);
 

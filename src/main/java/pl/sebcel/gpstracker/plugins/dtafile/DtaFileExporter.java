@@ -9,12 +9,17 @@ import javax.microedition.io.file.FileConnection;
 
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
-import pl.sebcel.gpstracker.plugins.TrackListener;
+import pl.sebcel.gpstracker.plugins.GpsTrackerPlugin;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
 
-public class DtaFileExporter implements TrackListener {
+/**
+ * Exports track data to text file
+ * 
+ * @author Sebastian Celejewski
+ */
+public class DtaFileExporter implements GpsTrackerPlugin {
 
     private final Logger log = Logger.getLogger();
 
@@ -26,6 +31,7 @@ public class DtaFileExporter implements TrackListener {
     }
 
     public void onNewTrackCreated(Track track) {
+        log.debug("[DtaFileExporter] onNewTrackCreated");
         try {
             String root = fileUtils.findRoot();
             String fileName = DateFormat.getFilename(track.getStartDate(), "", "dta");
@@ -39,6 +45,7 @@ public class DtaFileExporter implements TrackListener {
     }
 
     public void onTrackUpdated(Track track, Vector trackPoints) {
+        log.debug("[DtaFileExporter] onTrackUpdated");
         StringBuffer data = new StringBuffer();
         Date startTime = new Date();
 
@@ -60,9 +67,10 @@ public class DtaFileExporter implements TrackListener {
         Date endTime = new Date();
         long duration = endTime.getTime() - startTime.getTime();
 
-        log.debug("[TrackRepository] Saved " + trackPoints.size() + " track points (" + dataBytes.length + " bytes, " + duration + " ms)");
+        log.debug("[DtaFileExporter] Saved " + trackPoints.size() + " track points (" + dataBytes.length + " bytes, " + duration + " ms)");
     }
 
     public void onTrackCompleted(Track track) {
+        log.debug("[DtaFileExporter] onTrackCompleted");
     }
 }

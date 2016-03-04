@@ -11,12 +11,17 @@ import javax.microedition.io.file.FileConnection;
 
 import pl.sebcel.gpstracker.export.gpx.GpxSerializer;
 import pl.sebcel.gpstracker.model.Track;
-import pl.sebcel.gpstracker.plugins.TrackListener;
+import pl.sebcel.gpstracker.plugins.GpsTrackerPlugin;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
 
-public class GpxFileExporter implements TrackListener {
+/**
+ * Exports track data to GPX file
+ * 
+ * @author Sebastian Celejewski *
+ */
+public class GpxFileExporter implements GpsTrackerPlugin {
 
     private final Logger log = Logger.getLogger();
 
@@ -29,13 +34,16 @@ public class GpxFileExporter implements TrackListener {
     }
 
     public void onNewTrackCreated(Track track) {
+        log.debug("GpxFileExporter] onTrackCreated");
     }
 
     public void onTrackUpdated(Track track, Vector trackPoints) {
+        log.debug("GpxFileExporter] onTrackUpdated");
     }
 
     public void onTrackCompleted(Track track) {
-        log.debug("[TrackRepository] Saving track " + track.getId());
+        log.debug("[GpxFileExporter] onTrackCompleted");
+        log.debug("[GpxFileExporter] Saving track " + track.getId());
         Date startTime = new Date();
         String root = fileUtils.findRoot();
         String fileName = DateFormat.getFilename(track.getStartDate(), "", "gpx");
@@ -59,9 +67,9 @@ public class GpxFileExporter implements TrackListener {
             Date endTime = new Date();
             long duration = endTime.getTime() - startTime.getTime();
 
-            log.debug("[TrackRepository] Track " + track.getId() + " saved (" + track.getPoints().size() + " points, " + data.length + " bytes, " + duration + " ms)");
+            log.debug("[GpxFileExporter] Track " + track.getId() + " saved (" + track.getPoints().size() + " points, " + data.length + " bytes, " + duration + " ms)");
         } catch (IOException ioe) {
-            log.debug("[TrackRepository] Failed to save track " + track.getId() + ": " + ioe.getMessage());
+            log.debug("[GpxFileExporter] Failed to save track " + track.getId() + ": " + ioe.getMessage());
         }
     }
 }

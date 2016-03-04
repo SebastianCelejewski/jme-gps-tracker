@@ -113,11 +113,12 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     }
 
     private void start() {
-        log.debug("[AppEngine] Starting recording of a new track");
+        log.debug("[AppEngine] Start - started");
         appState.setAppStatus(WorkflowStatus.STARTING);
 
         Runnable command = new Runnable() {
             public void run() {
+                log.debug("[AppEngine] Start - command thread started");
                 Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 String trackId = DateFormat.format(currentDate.getTime());
                 currentTrackPoints = new Vector();
@@ -125,7 +126,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
                 pluginRegistry.newTrackCreated(currentTrack);
 
                 appState.setAppStatus(WorkflowStatus.STARTED);
-                log.debug("[AppEngine] Track recording started");
+                log.debug("[AppEngine] Start - command thread completed");
             }
         };
 
@@ -133,11 +134,12 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     }
 
     private void stop() {
-        log.debug("[AppEngine] Stopping track recording");
+        log.debug("[AppEngine] Stop - started");
         appState.setAppStatus(WorkflowStatus.STOPPING);
 
         Runnable command = new Runnable() {
             public void run() {
+                log.debug("[AppEngine] Stop - command thread started");
                 save();
 
                 appState.setInfo("Exporting track to GPX");
@@ -146,6 +148,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
                 appState.setAppStatus(WorkflowStatus.STOPPED);
                 appState.setInfo("Track exported to GPX");
                 log.debug("[AppEngine] Track recording stopped");
+                log.debug("[AppEngine] Stop - command thread completed");
             }
         };
 
@@ -153,6 +156,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     }
 
     private void save() {
+        log.debug("[AppEngine] Save - started");
         appState.setInfo("Saving track");
         AlertType.WARNING.playSound(display);
         synchronized (currentTrack) {
@@ -162,6 +166,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         AlertType.WARNING.playSound(display);
         AlertType.WARNING.playSound(display);
         appState.setInfo("Track saved");
+        log.debug("[AppEngine] Save - completed");
     }
 
     private void pause() {
