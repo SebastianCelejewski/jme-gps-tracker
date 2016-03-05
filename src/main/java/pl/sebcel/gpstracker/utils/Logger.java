@@ -24,7 +24,7 @@ public class Logger {
 
     public Logger() {
         String root = new FileUtils().findRoot();
-        String fileName = DateFormat.getFilename(new Date(), "", "log");
+        String fileName = DateFormat.getFilename(new Date(), "", "log.txt");
         try {
             String uri = "file:///" + root + fileName;
             FileConnection fconn = (FileConnection) Connector.open(uri);
