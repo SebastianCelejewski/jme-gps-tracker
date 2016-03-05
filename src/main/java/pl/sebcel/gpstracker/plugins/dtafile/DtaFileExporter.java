@@ -10,6 +10,8 @@ import javax.microedition.io.file.FileConnection;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
 import pl.sebcel.gpstracker.plugins.GpsTrackerPlugin;
+import pl.sebcel.gpstracker.plugins.PluginRegistry;
+import pl.sebcel.gpstracker.plugins.TrackListener;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
@@ -19,7 +21,7 @@ import pl.sebcel.gpstracker.utils.Logger;
  * 
  * @author Sebastian Celejewski
  */
-public class DtaFileExporter implements GpsTrackerPlugin {
+public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
 
     private final Logger log = Logger.getLogger();
 
@@ -30,8 +32,12 @@ public class DtaFileExporter implements GpsTrackerPlugin {
         this.fileUtils = fileUtils;
     }
 
-    public void onNewTrackCreated(Track track) {
-        log.debug("[DtaFileExporter] onNewTrackCreated");
+    public void register(PluginRegistry registry) {
+        registry.addTrackListener(this);
+    }
+
+    public void onTrackCreated(Track track) {
+        log.debug("[DtaFileExporter] onTrackCreated");
         try {
             String root = fileUtils.findRoot();
             String fileName = DateFormat.getFilename(track.getStartDate(), "", "dta");

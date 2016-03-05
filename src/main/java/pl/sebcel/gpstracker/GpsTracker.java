@@ -50,13 +50,16 @@ public class GpsTracker extends MIDlet {
         AppState state = new AppState(WorkflowStatus.UNINITIALIZED, GpsStatus.UNINITIALIZED);
         GpxSerializer gpxSerializer = new CustomGpxSerializer();
         FileUtils fileUtils = new FileUtils();
+        
         PluginRegistry pluginRegistry = new PluginRegistry();
         DtaFileExporter dtaFileExporter = new DtaFileExporter(fileUtils);
         GpxFileExporter gpxFileExporter = new GpxFileExporter(fileUtils, gpxSerializer);
         EndomondoConnector endomondoConnector = new EndomondoConnector();
-        pluginRegistry.addPlugin(dtaFileExporter);
-        pluginRegistry.addPlugin(gpxFileExporter);
-        pluginRegistry.addPlugin(endomondoConnector);
+        
+        dtaFileExporter.register(pluginRegistry);
+        gpxFileExporter.register(pluginRegistry);
+        endomondoConnector.register(pluginRegistry);
+        
         model = new AppModel(state);
         view = new AppView(model);
         engine = new AppEngine(state, gpsTrackerConfig, display, pluginRegistry);

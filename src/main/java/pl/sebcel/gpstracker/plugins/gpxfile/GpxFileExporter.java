@@ -12,6 +12,8 @@ import javax.microedition.io.file.FileConnection;
 import pl.sebcel.gpstracker.export.gpx.GpxSerializer;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.plugins.GpsTrackerPlugin;
+import pl.sebcel.gpstracker.plugins.PluginRegistry;
+import pl.sebcel.gpstracker.plugins.TrackListener;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
@@ -19,9 +21,9 @@ import pl.sebcel.gpstracker.utils.Logger;
 /**
  * Exports track data to GPX file
  * 
- * @author Sebastian Celejewski *
+ * @author Sebastian Celejewski
  */
-public class GpxFileExporter implements GpsTrackerPlugin {
+public class GpxFileExporter implements GpsTrackerPlugin, TrackListener {
 
     private final Logger log = Logger.getLogger();
 
@@ -33,7 +35,11 @@ public class GpxFileExporter implements GpsTrackerPlugin {
         this.gpxSerializer = gpxSerializer;
     }
 
-    public void onNewTrackCreated(Track track) {
+    public void register(PluginRegistry registry) {
+        registry.addTrackListener(this);
+    }
+
+    public void onTrackCreated(Track track) {
         log.debug("GpxFileExporter] onTrackCreated");
     }
 

@@ -15,6 +15,8 @@ import pl.sebcel.gpstracker.GpsTracker;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
 import pl.sebcel.gpstracker.plugins.GpsTrackerPlugin;
+import pl.sebcel.gpstracker.plugins.PluginRegistry;
+import pl.sebcel.gpstracker.plugins.TrackListener;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.Logger;
 
@@ -27,7 +29,7 @@ import com.jcraft.jzlib.ZStream;
  * 
  * @author Sebastian Celejewski
  */
-public class EndomondoConnector implements GpsTrackerPlugin {
+public class EndomondoConnector implements GpsTrackerPlugin, TrackListener {
 
     private final Logger log = Logger.getLogger();
     private final static String endomondoAuthenticationToken = "PUT_AUTHENTICATION_TOKEN_HERE";
@@ -37,8 +39,12 @@ public class EndomondoConnector implements GpsTrackerPlugin {
     private boolean startCommandWasSent = false;
     private TrackPoint lastTrackPoint = null;
 
-    public void onNewTrackCreated(Track track) {
-        log.debug("[EncomondoConnector] onNewTrackCreated");
+    public void register(PluginRegistry registry) {
+        registry.addTrackListener(this);
+    }
+
+    public void onTrackCreated(Track track) {
+        log.debug("[EncomondoConnector] onTrackCreated");
 
         this.startTime = System.currentTimeMillis();
         this.startCommandWasSent = false;
