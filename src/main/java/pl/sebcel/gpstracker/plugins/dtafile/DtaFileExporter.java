@@ -51,7 +51,7 @@ public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
     }
 
     public void onTrackUpdated(Track track, Vector trackPoints) {
-        log.debug("[DtaFileExporter] onTrackUpdated");
+//        log.debug("[DtaFileExporter] onTrackUpdated");
         StringBuffer data = new StringBuffer();
         Date startTime = new Date();
 
@@ -73,7 +73,7 @@ public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
         Date endTime = new Date();
         long duration = endTime.getTime() - startTime.getTime();
 
-        log.debug("[DtaFileExporter] Saved " + trackPoints.size() + " track points (" + dataBytes.length + " bytes, " + duration + " ms)");
+//        log.debug("[DtaFileExporter] Saved " + trackPoints.size() + " track points (" + dataBytes.length + " bytes, " + duration + " ms)");
     }
 
     public void onTrackCompleted(Track track) {

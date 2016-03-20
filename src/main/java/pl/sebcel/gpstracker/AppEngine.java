@@ -123,7 +123,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
                 String trackId = DateFormat.format(currentDate.getTime());
                 currentTrackPoints = new Vector();
                 currentTrack = new Track(trackId, new Date());
-                pluginRegistry.newTrackCreated(currentTrack);
+                pluginRegistry.fireTrackCreated(currentTrack);
 
                 appState.setAppStatus(WorkflowStatus.STARTED);
                 log.debug("[AppEngine] Start - command thread completed");
@@ -143,7 +143,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
                 save();
 
                 appState.setInfo("Exporting track to GPX");
-                pluginRegistry.trackCompleted(currentTrack);
+                pluginRegistry.fireTrackCompleted(currentTrack);
                 currentTrack = null;
                 appState.setAppStatus(WorkflowStatus.STOPPED);
                 appState.setInfo("Track exported to GPX");
@@ -160,7 +160,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         appState.setInfo("Saving track");
         AlertType.WARNING.playSound(display);
         synchronized (currentTrack) {
-            pluginRegistry.trackUpdated(currentTrack, currentTrackPoints);
+            pluginRegistry.fireTrackUpdated(currentTrack, currentTrackPoints);
             currentTrackPoints = new Vector();
         }
         AlertType.WARNING.playSound(display);
