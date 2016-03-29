@@ -1,7 +1,6 @@
 package pl.sebcel.gpstracker.plugins.dtafile;
 
 import java.io.PrintStream;
-import java.util.Date;
 import java.util.Vector;
 
 import javax.microedition.io.Connector;
@@ -37,7 +36,6 @@ public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
     }
 
     public void onTrackCreated(Track track) {
-        log.debug("[DtaFileExporter] onTrackCreated");
         try {
             String root = fileUtils.findRoot();
             String fileName = DateFormat.getFilename(track.getStartDate(), "", "dta");
@@ -51,9 +49,7 @@ public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
     }
 
     public void onTrackUpdated(Track track, Vector trackPoints) {
-//        log.debug("[DtaFileExporter] onTrackUpdated");
         StringBuffer data = new StringBuffer();
-        Date startTime = new Date();
 
         for (int i = 0; i < trackPoints.size(); i++) {
             TrackPoint point = (TrackPoint) trackPoints.elementAt(i);
@@ -69,14 +65,8 @@ public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
             log.debug("Failed to save data to file: " + ex.getMessage());
         }
         writer.flush();
-
-        Date endTime = new Date();
-        long duration = endTime.getTime() - startTime.getTime();
-
-//        log.debug("[DtaFileExporter] Saved " + trackPoints.size() + " track points (" + dataBytes.length + " bytes, " + duration + " ms)");
     }
 
     public void onTrackCompleted(Track track) {
-        log.debug("[DtaFileExporter] onTrackCompleted");
     }
 }

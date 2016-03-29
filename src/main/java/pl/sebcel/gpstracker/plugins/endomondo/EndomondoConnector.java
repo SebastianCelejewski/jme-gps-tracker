@@ -47,6 +47,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
     private TrackPoint lastTrackPoint = null;
     private PluginConfig pluginConfig = new PluginConfig();
     private ConfigurationProvider configurationProvider;
+    private boolean connectedToServer = false;
 
     public void register(PluginRegistry registry) {
         registry.addTrackListener(this);
@@ -61,58 +62,68 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
     }
 
     public void onTrackCreated(Track track) {
-        log.debug("[EncomondoConnector] onTrackCreated");
-
         this.startTime = System.currentTimeMillis();
         this.startCommandWasSent = false;
         this.lastTrackPoint = null;
 
-        String authenticationToken = pluginConfig.getValue("Authentication token");
-        if (authenticationToken == null || authenticationToken.length() == 0) {
-            log.debug("[EndomondoConnector] Authentication token is not provided. Will need to pair the device.");
-            sendConnectRequest();
-            authenticationToken = pluginConfig.getValue("Authentication token");
-            log.debug("[EndomondoConnector] Authentication token after login: " + authenticationToken);
-            log.debug("[EndomondoConnector] Forcing configuration to be reloaded.");
-            configurationProvider.updateViewAndStorage();
-        } else {
-            log.debug("[EndomondoConnector] Authentication token is provided. No need to pair the device.");
-        }
-        sendConfigureRequest();
+        connectedToServer = false;
 
-        log.debug("[EncomondoConnector] onNewTrackCreated completed");
+        String authenticationToken = pluginConfig.getValue("Authentication token");
+        if (authenticationToken != null && authenticationToken.length() > 0) {
+            log.debug("[EndomondoConnector] Authentication token is provided. Trying to establish connection to Endomondo server using authentication token.");
+            connectedToServer = sendConfigureRequest();
+            if (connectedToServer) {
+                log.debug("[EndomondoConnector] Connection to Endomondo server has been established successfully using authentication token.");
+            } else {
+                log.debug("[EndomondoConnector] Failed to establish connection to Endomondo server using authentication token. Trying to establish connection to Endomondo server using login and password.");
+                connectedToServer = connectToServer();
+            }
+        } else {
+            log.debug("[EndomondoConnector] Authentication token is not provided. Trying to establish connection to Endomondo server using login and password.");
+            connectedToServer = connectToServer();
+        }
+
+        log.debug("[EndomondoConnector] Connected to server: " + connectedToServer);
+    }
+
+    private boolean connectToServer() {
+        boolean connectedToServer = sendConnectRequest();
+        if (connectedToServer) {
+            log.debug("[EndomondoConnector] Connection to Endomondo server has been established successfully using login and password.");
+            configurationProvider.updateViewAndStorage();
+            sendConfigureRequest();
+        } else {
+            log.debug("[EndomondoConnector] Failed to establish connection to Endomondo server using login and password.");
+        }
+        return connectedToServer;
     }
 
     public void onTrackUpdated(Track track, Vector trackPoints) {
-        // log.debug("[EncomondoConnector] onTrackUpdated");
-        uploadToEndomondo(trackPoints, false);
-        // log.debug("[EncomondoConnector] onTrackUpdated completed");
+        if (connectedToServer) {
+            uploadToEndomondo(trackPoints, false);
+        }
     }
 
     public void onTrackCompleted(Track track) {
-        log.debug("[EncomondoConnector] onTrackCompleted");
-        Vector lastTrackPointVector = new Vector();
-        if (lastTrackPoint != null) {
-            TrackPoint trackPoint = new TrackPoint(new Date(), lastTrackPoint.getLatitude(), lastTrackPoint.getLongitude(), lastTrackPoint.getAltitude(), lastTrackPoint.getHorizontalAccuracy(), lastTrackPoint.getVerticalAccuracy());
-            lastTrackPointVector.addElement(trackPoint);
+        if (connectedToServer) {
+            Vector lastTrackPointVector = new Vector();
+            if (lastTrackPoint != null) {
+                TrackPoint trackPoint = new TrackPoint(new Date(), lastTrackPoint.getLatitude(), lastTrackPoint.getLongitude(), lastTrackPoint.getAltitude(), lastTrackPoint.getDistance(), lastTrackPoint.getHorizontalAccuracy(), lastTrackPoint.getVerticalAccuracy());
+                lastTrackPointVector.addElement(trackPoint);
+            }
+            uploadToEndomondo(lastTrackPointVector, true);
         }
-        uploadToEndomondo(lastTrackPointVector, true);
-        log.debug("[EncomondoConnector] onTrackCompleted completed");
     }
 
-    private void sendConnectRequest() {
+    private boolean sendConnectRequest() {
         HttpConnection connection = null;
         try {
             log.debug("[EndomondoConnector] Sending login request to Endomondo server.");
-            log.debug("[EndomondoConnector] Opening connection to Endomondo");
 
             String email = pluginConfig.getValue(USER_NAME);
             String password = pluginConfig.getValue(PASSWORD);
 
-            log.debug("Email: [" + email + "]");
-            log.debug("Password: [" + password + "]");
             String url = "http://www.endomondo.com/mobile/auth?action=PAIR&email=" + email + "&password=" + password + "&country=US&deviceId=1456610093443-2958678941403580632&vendor=Unknown&model=generic&os=Java&appVariant=Website&appVersion=" + GpsTracker.version + "&measure=METRIC";
-            System.out.println(url);
 
             connection = (HttpConnection) Connector.open(url);
             connection.setRequestMethod(HttpConnection.GET);
@@ -123,7 +134,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
 
             if (responseCode != HttpConnection.HTTP_OK) {
                 log.debug("[EndomondoConnector] Invalid HTTP response code. Aborting.");
-                return;
+                return false;
             }
 
             int responseLength = (int) connection.getLength();
@@ -132,14 +143,18 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             InputStream in = connection.openInputStream();
             if (in == null) {
                 log.debug("[EndomondoConnector] Cannot open input stream. Aborting.");
-                return;
+                return false;
             }
             byte[] data = new byte[responseLength];
             in.read(data);
             in.close();
 
             String serverResponse = new String(data);
-            System.out.println(serverResponse);
+
+            if (!serverResponse.startsWith("OK")) {
+                log.debug("[EndomondoConnector] Authentication failed: " + serverResponse);
+                return false;
+            }
 
             String[] lines = StringUtils.split(serverResponse, '\n');
             for (int i = 0; i < lines.length; i++) {
@@ -149,12 +164,12 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
                 }
             }
 
-            log.debug("[EndomondoConnector] Server response: " + serverResponse);
-            log.debug("[EndomondoConnector] Done");
+            return true;
 
         } catch (Exception ex) {
             log.debug("[EndomondoConnector] Failed to connect to Endomondo server: " + ex.getMessage());
             ex.printStackTrace();
+            return false;
         } finally {
             try {
                 connection.close();
@@ -164,11 +179,10 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
         }
     }
 
-    private void sendConfigureRequest() {
+    private boolean sendConfigureRequest() {
         HttpConnection connection = null;
         try {
             log.debug("[EndomondoConnector] Sending configuration request to Endomondo server.");
-            log.debug("[EndomondoConnector] Opening connection to Endomondo");
 
             connection = (HttpConnection) Connector.open("http://www.endomondo.com/mobile/config?authToken=" + pluginConfig.getValue(AUTHENTICATION_TOKEN) + "&vendor=Unknown&model=generic&os=Java&appVariant=Website&appVersion=" + GpsTracker.version);
             connection.setRequestMethod(HttpConnection.GET);
@@ -179,7 +193,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
 
             if (responseCode != HttpConnection.HTTP_OK) {
                 log.debug("[EndomondoConnector] Invalid HTTP response code. Aborting.");
-                return;
+                return false;
             }
 
             int responseLength = (int) connection.getLength();
@@ -188,19 +202,24 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             InputStream in = connection.openInputStream();
             if (in == null) {
                 log.debug("[EndomondoConnector] Cannot open input stream. Aborting.");
-                return;
+                return false;
             }
             byte[] data = new byte[responseLength];
             in.read(data);
             in.close();
 
             String serverResponse = new String(data);
-            log.debug("[EndomondoConnector] Server response: " + serverResponse);
-            log.debug("[EndomondoConnector] Done");
 
+            if (!serverResponse.startsWith("OK")) {
+                log.debug("[EndomondoConnector] Authentication failed: " + serverResponse);
+                return false;
+            }
+
+            return true;
         } catch (Exception ex) {
             log.debug("[EndomondoConnector] Failed to connect to Endomondo server: " + ex.getMessage());
             ex.printStackTrace();
+            return false;
         } finally {
             try {
                 connection.close();
@@ -211,19 +230,14 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
     }
 
     private void uploadToEndomondo(Vector trackPoints, boolean thisIsLastBatchOfTrackPoints) {
-        // log.debug("[EncomondoConnector] uploadToEndomondo: " + trackPoints.size() + " points");
         if (trackPoints.size() == 0) {
             return;
         }
         HttpConnection connection = null;
         try {
             String trackData = composeTrackData(trackPoints, thisIsLastBatchOfTrackPoints);
-            // log.debug("[EndomondoConnector] Batch of track points to be sent to Endomondo server:");
-            // log.debug(trackData);
 
             byte[] data = deflate(trackData);
-
-            // log.debug("[EndomondoConnector] Opening connection to Endomondo");
 
             long duration = (System.currentTimeMillis() - startTime) / 1000;
 
@@ -240,17 +254,13 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             os.flush();
             out.flush();
 
-            // log.debug("[EndomondoConnector] Data sent. Waiting for response");
-
             InputStream is = connection.openInputStream();
             String serverResponse = "";
 
             int b = 0;
-            long length = 0;
             do {
                 b = is.read();
                 if (b != -1) {
-                    length++;
                     serverResponse += (char) b;
                 }
             } while (b != -1);
@@ -258,11 +268,9 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             os.close();
             is.close();
 
-            // log.debug("[EndomondoConnector] Received " + length + " bytes of data.");
-            // log.debug("[EndomondoConnector] Server response:");
-            // log.debug(serverResponse);
-            // log.debug("[EndomondoConnector] Done");
-
+            if (!serverResponse.trim().startsWith("OK")) {
+                log.debug("[EndomondoConnector] WARNING: Endomondo server response: " + serverResponse);
+            }
         } catch (Exception ex) {
             log.debug("[EndomondoConnector] Failed to send data to Endomondo server: " + ex.getMessage());
             ex.printStackTrace();
@@ -295,7 +303,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
 
     private String composeTrackPoint(TrackPoint trackPoint, String command) {
         String dateTimeStr = DateFormat.endomondoFormat(trackPoint.getDateTime());
-        return dateTimeStr + ";" + command + ";" + trackPoint.getLatitude() + ";" + trackPoint.getLongitude() + ";;;";
+        return dateTimeStr + ";" + command + ";" + trackPoint.getLatitude() + ";" + trackPoint.getLongitude() + ";" + trackPoint.getDistance() + ";;";
     }
 
     private byte[] deflate(String input) {
@@ -361,6 +369,5 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
     }
 
     public void onConfigUpdated(PluginConfig pluginConfig) {
-        log.debug("[EndomondoConnector] onConfigUpdated");
     }
 }

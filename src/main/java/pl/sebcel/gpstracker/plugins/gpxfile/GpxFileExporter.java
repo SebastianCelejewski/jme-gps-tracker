@@ -40,15 +40,12 @@ public class GpxFileExporter implements GpsTrackerPlugin, TrackListener {
     }
 
     public void onTrackCreated(Track track) {
-        log.debug("GpxFileExporter] onTrackCreated");
     }
 
     public void onTrackUpdated(Track track, Vector trackPoints) {
-        log.debug("GpxFileExporter] onTrackUpdated");
     }
 
     public void onTrackCompleted(Track track) {
-        log.debug("[GpxFileExporter] onTrackCompleted");
         log.debug("[GpxFileExporter] Saving track " + track.getId());
         Date startTime = new Date();
         String root = fileUtils.findRoot();

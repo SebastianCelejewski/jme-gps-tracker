@@ -216,12 +216,12 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         return "Total: " + totalMemory + ", free: " + freeMemory + ", used: " + usedMemory + " (" + memoryUtilization + "%)";
     }
 
-    public void locationUpdated(QualifiedCoordinates coordinates) {
-        double latitude = coordinates.getLatitude();
-        double longitude = coordinates.getLongitude();
-        double altitude = coordinates.getAltitude();
-        double horizontalAccuracy = coordinates.getHorizontalAccuracy();
-        double verticalAccuracy = coordinates.getVerticalAccuracy();
+    public void locationUpdated(QualifiedCoordinates currentCoordinates, QualifiedCoordinates previousCoordinates) {
+        double latitude = currentCoordinates.getLatitude();
+        double longitude = currentCoordinates.getLongitude();
+        double altitude = currentCoordinates.getAltitude();
+        double horizontalAccuracy = currentCoordinates.getHorizontalAccuracy();
+        double verticalAccuracy = currentCoordinates.getVerticalAccuracy();
 
         if (currentTrack == null || !appState.getAppStatus().equals(WorkflowStatus.STARTED)) {
             log.debug("[AppEngine] Location information arrived but is ignored, because application is not in status STARTED. CurrentTrack: " + currentTrack + ", current status: " + appState.getAppStatus().getDisplayName());
@@ -231,8 +231,12 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         try {
             AlertType.INFO.playSound(display);
 
+            double distanceDelta = currentCoordinates.distance(previousCoordinates) / 1000;
+            currentTrack.addDistance(distanceDelta);
+            log.debug("[AppEngine] Distance delta: " + distanceDelta + " km, total distance: " + currentTrack.getDistance());
+
             Date dateTime = new Date();
-            TrackPoint point = new TrackPoint(dateTime, latitude, longitude, altitude, horizontalAccuracy, verticalAccuracy);
+            TrackPoint point = new TrackPoint(dateTime, latitude, longitude, altitude, currentTrack.getDistance(), horizontalAccuracy, verticalAccuracy);
             synchronized (currentTrack) {
                 currentTrack.addPoint(point);
                 currentTrackPoints.addElement(point);

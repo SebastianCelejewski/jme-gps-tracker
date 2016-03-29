@@ -16,7 +16,6 @@ import pl.sebcel.gpstracker.plugins.gpxfile.GpxFileExporter;
 import pl.sebcel.gpstracker.storage.Storage;
 import pl.sebcel.gpstracker.utils.FileUtils;
 import pl.sebcel.gpstracker.utils.Logger;
-import pl.sebcel.gpstracker.utils.StringUtils;
 import pl.sebcel.gpstracker.workflow.WorkflowStatus;
 import pl.sebcel.location.GpsStatus;
 import pl.sebcel.location.LocationManager;
