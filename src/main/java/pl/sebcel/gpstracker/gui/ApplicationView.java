@@ -3,6 +3,10 @@ package pl.sebcel.gpstracker.gui;
 import java.util.Vector;
 
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.CommandListener;
+import javax.microedition.lcdui.Display;
+import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
@@ -10,12 +14,12 @@ import pl.sebcel.gpstracker.AppColor;
 import pl.sebcel.gpstracker.events.AppStateChangeListener;
 import pl.sebcel.gpstracker.events.UserActionListener;
 import pl.sebcel.gpstracker.utils.Logger;
-import pl.sebcel.gpstracker.workflow.WorkflowStatus;
 import pl.sebcel.gpstracker.workflow.GpsTrackerWorkflow;
+import pl.sebcel.gpstracker.workflow.WorkflowStatus;
 import pl.sebcel.gpstracker.workflow.WorkflowTransition;
 import pl.sebcel.location.GpsStatus;
 
-public class AppView extends Canvas implements AppStateChangeListener {
+public class ApplicationView extends Canvas implements AppStateChangeListener {
 
     private final Logger log = Logger.getLogger();
 
@@ -23,17 +27,35 @@ public class AppView extends Canvas implements AppStateChangeListener {
     private int selectedTransition = 0;
     private GpsTrackerWorkflow workflow = new GpsTrackerWorkflow();
     private Vector listeners = new Vector();
-
-    public AppView(AppModel model) {
+    private ConfigurationView configurationView;
+    private Command configurationCommand;
+    
+    public ApplicationView(final Display display, AppModel model) {
         super();
         this.model = model;
+        
+        configurationCommand = new Command("Configuration", Command.SCREEN, 1);
+        this.addCommand(configurationCommand);
+        this.setCommandListener(new CommandListener() {
+            
+            public void commandAction(Command command, Displayable source) {
+                if (command == configurationCommand) {
+                    display.setCurrent(configurationView);
+                }
+            }
+        });
+        
         log.debug("Dimensions: " + this.getWidth() + "x" + this.getHeight());
     }
 
-    public void addListener(UserActionListener listener) {
+    public void setConfigurationView(ConfigurationView configurationView) {
+        this.configurationView = configurationView;
+    }
+    
+    public void addUserActionListener(UserActionListener listener) {
         listeners.addElement(listener);
     }
-
+    
     protected void paint(Graphics g) {
         int width = this.getWidth();
         int height = this.getHeight();

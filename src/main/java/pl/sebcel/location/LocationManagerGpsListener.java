@@ -4,6 +4,6 @@ import javax.microedition.location.QualifiedCoordinates;
 
 public interface LocationManagerGpsListener {
 
-    public void locationUpdated(QualifiedCoordinates coordinates);
+    public void locationUpdated(QualifiedCoordinates currentCoordinates, QualifiedCoordinates previousCoordinates);
 
 }

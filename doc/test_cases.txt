@@ -1,0 +1,24 @@
+JME GPS Tracker Test Cases
+
+1. Endomondo connector
+
+1.1. Blank user name, password, and authentication token
+
+1.2. Blank user name, password, and invalid authentication token
+
+1.3. Invalid user name, password, and authentication token
+
+1.4. Valid user name, and password, but blank authentication token
+
+1.5. Valid user name, and password, but invalid authentication token
+
+1.6. Valid user name, and password, and valid authentication token
+
+
+User name and password		authentication token			Expected result			How it should authenticate
+blank or invalid		blank					no connection			credentials fail
+blank or invalid		invalid					no connection			token fails, then credentials fail
+blank or invalid		valid					valid connection		token success
+valid				blank					valid connection		token fails, then credentials success
+valid				invalid					valid connection		token fails, then credentials success
+valid				valid					valid connection		token success

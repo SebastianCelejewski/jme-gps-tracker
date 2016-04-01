@@ -13,7 +13,7 @@ import javax.microedition.location.QualifiedCoordinates;
 import pl.sebcel.gpstracker.events.UserActionListener;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
-import pl.sebcel.gpstracker.model.TrackRepository;
+import pl.sebcel.gpstracker.plugins.PluginRegistry;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.Logger;
 import pl.sebcel.gpstracker.workflow.WorkflowStatus;
@@ -37,7 +37,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
 
     private AppState appState;
     private Track currentTrack;
-    private TrackRepository trackRepository;
+    private PluginRegistry pluginRegistry;
     private Display display;
     private Vector currentTrackPoints;
     private GpsTrackerConfiguration gpsTrackerConfig;
@@ -47,9 +47,9 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     private Thread commandThread;
     private Stack commands = new Stack();
 
-    public AppEngine(AppState appState, GpsTrackerConfiguration gpsTrackerConfig, Display display, TrackRepository trackRepository) {
+    public AppEngine(AppState appState, GpsTrackerConfiguration gpsTrackerConfig, Display display, PluginRegistry pluginRegistry) {
         this.appState = appState;
-        this.trackRepository = trackRepository;
+        this.pluginRegistry = pluginRegistry;
         this.display = display;
         this.gpsTrackerConfig = gpsTrackerConfig;
     }
@@ -113,19 +113,20 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     }
 
     private void start() {
-        log.debug("[AppEngine] Starting recording of a new track");
+        log.debug("[AppEngine] Start - started");
         appState.setAppStatus(WorkflowStatus.STARTING);
 
         Runnable command = new Runnable() {
             public void run() {
+                log.debug("[AppEngine] Start - command thread started");
                 Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 String trackId = DateFormat.format(currentDate.getTime());
                 currentTrackPoints = new Vector();
                 currentTrack = new Track(trackId, new Date());
-                trackRepository.createNewTrack(currentTrack);
+                pluginRegistry.fireTrackCreated(currentTrack);
 
                 appState.setAppStatus(WorkflowStatus.STARTED);
-                log.debug("[AppEngine] Track recording started");
+                log.debug("[AppEngine] Start - command thread completed");
             }
         };
 
@@ -133,19 +134,21 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     }
 
     private void stop() {
-        log.debug("[AppEngine] Stopping track recording");
+        log.debug("[AppEngine] Stop - started");
         appState.setAppStatus(WorkflowStatus.STOPPING);
 
         Runnable command = new Runnable() {
             public void run() {
+                log.debug("[AppEngine] Stop - command thread started");
                 save();
 
                 appState.setInfo("Exporting track to GPX");
-                trackRepository.saveTrack(currentTrack);
+                pluginRegistry.fireTrackCompleted(currentTrack);
                 currentTrack = null;
                 appState.setAppStatus(WorkflowStatus.STOPPED);
                 appState.setInfo("Track exported to GPX");
                 log.debug("[AppEngine] Track recording stopped");
+                log.debug("[AppEngine] Stop - command thread completed");
             }
         };
 
@@ -153,15 +156,17 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
     }
 
     private void save() {
+        log.debug("[AppEngine] Save - started");
         appState.setInfo("Saving track");
         AlertType.WARNING.playSound(display);
         synchronized (currentTrack) {
-            trackRepository.appendTrackPoints(currentTrack, currentTrackPoints);
+            pluginRegistry.fireTrackUpdated(currentTrack, currentTrackPoints);
             currentTrackPoints = new Vector();
         }
         AlertType.WARNING.playSound(display);
         AlertType.WARNING.playSound(display);
         appState.setInfo("Track saved");
+        log.debug("[AppEngine] Save - completed");
     }
 
     private void pause() {
@@ -211,12 +216,12 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         return "Total: " + totalMemory + ", free: " + freeMemory + ", used: " + usedMemory + " (" + memoryUtilization + "%)";
     }
 
-    public void locationUpdated(QualifiedCoordinates coordinates) {
-        double latitude = coordinates.getLatitude();
-        double longitude = coordinates.getLongitude();
-        double altitude = coordinates.getAltitude();
-        double horizontalAccuracy = coordinates.getHorizontalAccuracy();
-        double verticalAccuracy = coordinates.getVerticalAccuracy();
+    public void locationUpdated(QualifiedCoordinates currentCoordinates, QualifiedCoordinates previousCoordinates) {
+        double latitude = currentCoordinates.getLatitude();
+        double longitude = currentCoordinates.getLongitude();
+        double altitude = currentCoordinates.getAltitude();
+        double horizontalAccuracy = currentCoordinates.getHorizontalAccuracy();
+        double verticalAccuracy = currentCoordinates.getVerticalAccuracy();
 
         if (currentTrack == null || !appState.getAppStatus().equals(WorkflowStatus.STARTED)) {
             log.debug("[AppEngine] Location information arrived but is ignored, because application is not in status STARTED. CurrentTrack: " + currentTrack + ", current status: " + appState.getAppStatus().getDisplayName());
@@ -226,8 +231,12 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         try {
             AlertType.INFO.playSound(display);
 
+            double distanceDelta = currentCoordinates.distance(previousCoordinates) / 1000;
+            currentTrack.addDistance(distanceDelta);
+            log.debug("[AppEngine] Distance delta: " + distanceDelta + " km, total distance: " + currentTrack.getDistance());
+
             Date dateTime = new Date();
-            TrackPoint point = new TrackPoint(dateTime, latitude, longitude, altitude, horizontalAccuracy, verticalAccuracy);
+            TrackPoint point = new TrackPoint(dateTime, latitude, longitude, altitude, currentTrack.getDistance(), horizontalAccuracy, verticalAccuracy);
             synchronized (currentTrack) {
                 currentTrack.addPoint(point);
                 currentTrackPoints.addElement(point);

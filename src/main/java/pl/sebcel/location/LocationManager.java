@@ -30,6 +30,8 @@ public class LocationManager implements LocationListener {
 
     private Vector locationListeners = new Vector();
     private Vector statusListeners = new Vector();
+    
+    private QualifiedCoordinates previousCoordinates = null;
 
     public LocationManager(LocationManagerConfiguration config) {
         log.debug("[LocationManager] Initialization");
@@ -52,6 +54,7 @@ public class LocationManager implements LocationListener {
             return;
         }
         alreadyinitialized = true;
+        previousCoordinates = null;
 
         // It can take very long time (e.g. 10-20 minutes), so we are putting it into a separate thread
         new Thread(new Runnable() {
@@ -119,7 +122,7 @@ public class LocationManager implements LocationListener {
         log.debug("[LocationManager] Handling locationUpdated event: valid reading. Latitude=" + latitude + ", longitude=" + longitude + ", altitude=" + altitude + ", horizontalAccuracy=" + horizontalAccuracy + ", verticalAccuracy=" + verticalAccuracy);
 
         setGpsStatus(GpsStatus.OK);
-        fireLocationChanged(coordinates);
+        fireLocationChanged(new CustomCoordinates(coordinates));
         lastGpsUpdate = new Date().getTime();
     }
 
@@ -187,11 +190,12 @@ public class LocationManager implements LocationListener {
         fireStatusChanged(gpsStatus);
     }
 
-    private void fireLocationChanged(QualifiedCoordinates coordinates) {
+    private void fireLocationChanged(QualifiedCoordinates currentCoordinates) {
         for (int i = 0; i < locationListeners.size(); i++) {
             LocationManagerGpsListener listener = (LocationManagerGpsListener) locationListeners.elementAt(i);
-            listener.locationUpdated(coordinates);
+            listener.locationUpdated(currentCoordinates, previousCoordinates);
         }
+        previousCoordinates = currentCoordinates;
     }
 
     private void fireStatusChanged(GpsStatus gpsStatus) {
