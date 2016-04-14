@@ -44,6 +44,8 @@ public class GpsTracker extends MIDlet {
     private LocationManager locationManager;
 
     public GpsTracker() {
+        log.setInfoEnabled(true);
+        log.setDebugEnabled(false);
         
         log.debug("[GpsTracker] Midlet initialization started");
         this.display = Display.getDisplay(this);

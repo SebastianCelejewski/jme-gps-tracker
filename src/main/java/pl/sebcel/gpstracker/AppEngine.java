@@ -243,7 +243,7 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
             }
             appState.setInfo("" + currentTrack.getPoints().size());
         } catch (Exception ex) {
-            log.debug("[AppEngine] Failed to handle location update: " + ex.getMessage());
+            log.error("[AppEngine] Failed to handle location update: " + ex.getMessage());
         }
     }
 

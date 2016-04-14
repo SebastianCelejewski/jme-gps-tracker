@@ -65,7 +65,7 @@ public class ConfigurationProvider {
 
     public LocationManagerConfiguration getConfiguration() {
         LocationManagerConfiguration config = new LocationManagerConfiguration();
-        config.setGpsLocationInterval(5);
+        config.setGpsLocationInterval(10);
         config.setGpsHorizontalAccuracyForLocationProvider(500);
         config.setGpsHorizontalAccuracyForTrackPointsFiltering(60);
         config.setGpsLocationFindTimeout(600);
@@ -80,7 +80,7 @@ public class ConfigurationProvider {
 
     public GpsTrackerConfiguration getGpsTrackerConfiguration() {
         GpsTrackerConfiguration config = new GpsTrackerConfiguration();
-        config.setSaveInterval(20);
+        config.setSaveInterval(60);
 
         log.debug("[ConfigurationProvider] Current Location Manager configuration: ");
         log.debug(config.toString());

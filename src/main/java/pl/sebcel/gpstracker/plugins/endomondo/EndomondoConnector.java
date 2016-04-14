@@ -93,7 +93,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             configurationProvider.updateViewAndStorage();
             sendConfigureRequest();
         } else {
-            log.debug("[EndomondoConnector] Failed to establish connection to Endomondo server using login and password.");
+            log.info("[EndomondoConnector] Failed to establish connection to Endomondo server using login and password.");
         }
         return connectedToServer;
     }
@@ -152,7 +152,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             String serverResponse = new String(data);
 
             if (!serverResponse.startsWith("OK")) {
-                log.debug("[EndomondoConnector] Authentication failed: " + serverResponse);
+                log.info("[EndomondoConnector] Authentication failed: " + serverResponse);
                 return false;
             }
 
@@ -167,7 +167,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             return true;
 
         } catch (Exception ex) {
-            log.debug("[EndomondoConnector] Failed to connect to Endomondo server: " + ex.getMessage());
+            log.error("[EndomondoConnector] Failed to connect to Endomondo server: " + ex.getMessage());
             ex.printStackTrace();
             return false;
         } finally {
@@ -217,7 +217,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
 
             return true;
         } catch (Exception ex) {
-            log.debug("[EndomondoConnector] Failed to connect to Endomondo server: " + ex.getMessage());
+            log.error("[EndomondoConnector] Failed to connect to Endomondo server: " + ex.getMessage());
             ex.printStackTrace();
             return false;
         } finally {
@@ -272,7 +272,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
                 log.debug("[EndomondoConnector] WARNING: Endomondo server response: " + serverResponse);
             }
         } catch (Exception ex) {
-            log.debug("[EndomondoConnector] Failed to send data to Endomondo server: " + ex.getMessage());
+            log.error("[EndomondoConnector] Failed to send data to Endomondo server: " + ex.getMessage());
             ex.printStackTrace();
         } finally {
             try {
