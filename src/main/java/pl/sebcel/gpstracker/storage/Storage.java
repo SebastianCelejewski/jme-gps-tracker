@@ -47,7 +47,7 @@ public class Storage {
             recordEnumeration.destroy();
             log.debug("[Storage] Successfully loaded data from storage");
         } catch (Exception ex) {
-            log.debug("[Storage] Failed to load data from storage: " + ex);
+            log.error("[Storage] Failed to load data from storage: " + ex);
             ex.printStackTrace();
         }
     }
@@ -72,7 +72,7 @@ public class Storage {
 
             log.debug("[Storage] Successfully saved data to storage");
         } catch (Exception ex) {
-            log.debug("[Storage] Failed to save data to storage: " + ex);
+            log.error("[Storage] Failed to save data to storage: " + ex);
             ex.printStackTrace();
         }
     }
@@ -100,7 +100,7 @@ public class Storage {
             try {
                 recordStore.deleteRecord(recordId);
             } catch (Exception ex) {
-                log.debug("[Storage] Failed to delete record " + recordId + ": " + ex.getMessage());
+                log.error("[Storage] Failed to delete record " + recordId + ": " + ex.getMessage());
             }
         }
     }

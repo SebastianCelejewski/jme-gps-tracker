@@ -44,7 +44,7 @@ public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
             fconn.create();
             writer = new PrintStream(fconn.openOutputStream());
         } catch (Exception ex) {
-            log.debug("Cannot create PrintStream for track " + track.getId() + ": " + ex.getMessage());
+            log.error("Cannot create PrintStream for track " + track.getId() + ": " + ex.getMessage());
         }
     }
 

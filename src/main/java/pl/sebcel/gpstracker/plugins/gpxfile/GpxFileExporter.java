@@ -72,7 +72,7 @@ public class GpxFileExporter implements GpsTrackerPlugin, TrackListener {
 
             log.debug("[GpxFileExporter] Track " + track.getId() + " saved (" + track.getPoints().size() + " points, " + data.length + " bytes, " + duration + " ms)");
         } catch (IOException ioe) {
-            log.debug("[GpxFileExporter] Failed to save track " + track.getId() + ": " + ioe.getMessage());
+            log.error("[GpxFileExporter] Failed to save track " + track.getId() + ": " + ioe.getMessage());
         }
     }
 }
