@@ -58,7 +58,7 @@ public class GpsTracker extends MIDlet {
         Storage storage = new Storage();
         FileUtils fileUtils = new FileUtils();
 
-        PluginRegistry pluginRegistry = new PluginRegistry();
+        PluginRegistry pluginRegistry = new PluginRegistry(state);
         DtaFileExporter dtaFileExporter = new DtaFileExporter(fileUtils);
         GpxFileExporter gpxFileExporter = new GpxFileExporter(fileUtils, gpxSerializer);
         EndomondoConnector endomondoConnector = new EndomondoConnector();

@@ -142,11 +142,9 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
                 log.debug("[AppEngine] Stop - command thread started");
                 save();
 
-                appState.setInfo("Exporting track to GPX");
                 pluginRegistry.fireTrackCompleted(currentTrack);
                 currentTrack = null;
                 appState.setAppStatus(WorkflowStatus.STOPPED);
-                appState.setInfo("Track exported to GPX");
                 log.debug("[AppEngine] Track recording stopped");
                 log.debug("[AppEngine] Stop - command thread completed");
             }
@@ -157,7 +155,6 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
 
     private void save() {
         log.debug("[AppEngine] Save - started");
-        appState.setInfo("Saving track");
         AlertType.WARNING.playSound(display);
         synchronized (currentTrack) {
             pluginRegistry.fireTrackUpdated(currentTrack, currentTrackPoints);
@@ -165,21 +162,18 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
         }
         AlertType.WARNING.playSound(display);
         AlertType.WARNING.playSound(display);
-        appState.setInfo("Track saved");
         log.debug("[AppEngine] Save - completed");
     }
 
     private void pause() {
         log.debug("[AppEngine] Pausing");
         appState.setAppStatus(WorkflowStatus.PAUSED);
-        appState.setInfo("Paused");
         log.debug("[AppEngine] Paused");
     }
 
     private void resume() {
         log.debug("[AppEngine] Resuming");
         appState.setAppStatus(WorkflowStatus.STARTED);
-        appState.setInfo("Resumed");
         log.debug("[AppEngine] Resumed");
     }
 
@@ -241,7 +235,14 @@ public class AppEngine implements UserActionListener, LocationManagerGpsListener
                 currentTrack.addPoint(point);
                 currentTrackPoints.addElement(point);
             }
-            appState.setInfo("" + currentTrack.getPoints().size());
+
+            long duration = dateTime.getTime() - currentTrack.getStartDate().getTime();
+            long totalDurationInMinutes = duration / 1000 / 60;
+            long trackedDurationInMinutes = (dateTime.getTime() - ((TrackPoint) currentTrack.getPoints().elementAt(0)).getDateTime().getTime()) / 1000 / 60;
+            long numberOfPoints = currentTrack.getPoints().size();
+            double distance = ((double) ((int) (currentTrack.getDistance() * 100))) / 100;
+
+            appState.setInfo(totalDurationInMinutes + " min (" + trackedDurationInMinutes + " min)", numberOfPoints + " pts, " + distance + " km");
         } catch (Exception ex) {
             log.error("[AppEngine] Failed to handle location update: " + ex.getMessage());
         }

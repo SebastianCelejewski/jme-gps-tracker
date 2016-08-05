@@ -19,6 +19,8 @@ import pl.sebcel.gpstracker.plugins.ConfigListener;
 import pl.sebcel.gpstracker.plugins.GpsTrackerPlugin;
 import pl.sebcel.gpstracker.plugins.PluginConfig;
 import pl.sebcel.gpstracker.plugins.PluginRegistry;
+import pl.sebcel.gpstracker.plugins.PluginStatus;
+import pl.sebcel.gpstracker.plugins.PluginStatusListener;
 import pl.sebcel.gpstracker.plugins.TrackListener;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.Logger;
@@ -37,6 +39,8 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
 
     private final Logger log = Logger.getLogger();
 
+    private final static String ID = "ENDO";
+
     private final static String USER_NAME = "User name";
     private final static String PASSWORD = "Password";
     private final static String AUTHENTICATION_TOKEN = "Authentication token";
@@ -48,6 +52,8 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
     private PluginConfig pluginConfig = new PluginConfig();
     private ConfigurationProvider configurationProvider;
     private boolean connectedToServer = false;
+    private Vector trackPointsToBeUploaded = null;
+    private PluginStatusListener statusListener;
 
     public void register(PluginRegistry registry) {
         registry.addTrackListener(this);
@@ -55,6 +61,9 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
 
         pluginConfig.setPluginName("Endomondo Connector");
         pluginConfig.setConfigurationKeys(new String[] { USER_NAME, PASSWORD, AUTHENTICATION_TOKEN });
+
+        statusListener = registry.getPluginStatusListener();
+        statusListener.pluginStatusChanged(ID, PluginStatus.UNINITIALIZED);
     }
 
     public void setConfigurationProvider(ConfigurationProvider configurationProvider) {
@@ -83,6 +92,14 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             connectedToServer = connectToServer();
         }
 
+        if (connectedToServer) {
+            statusListener.pluginStatusChanged(ID, PluginStatus.OK);
+        } else {
+            statusListener.pluginStatusChanged(ID, PluginStatus.ERROR);
+        }
+
+        trackPointsToBeUploaded = new Vector();
+
         log.debug("[EndomondoConnector] Connected to server: " + connectedToServer);
     }
 
@@ -99,8 +116,11 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
     }
 
     public void onTrackUpdated(Track track, Vector trackPoints) {
+        for (int i = 0; i < trackPoints.size(); i++) {
+            trackPointsToBeUploaded.addElement(trackPoints.elementAt(i));
+        }
         if (connectedToServer) {
-            uploadToEndomondo(trackPoints, false);
+            uploadToEndomondo(trackPointsToBeUploaded, false);
         }
     }
 
@@ -230,6 +250,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
     }
 
     private void uploadToEndomondo(Vector trackPoints, boolean thisIsLastBatchOfTrackPoints) {
+        log.debug("[EndomondoConnector] Uploading " + trackPoints.size() + " points to Endomondo server.");
         if (trackPoints.size() == 0) {
             return;
         }
@@ -271,9 +292,13 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             if (!serverResponse.trim().startsWith("OK")) {
                 log.debug("[EndomondoConnector] WARNING: Endomondo server response: " + serverResponse);
             }
+            trackPointsToBeUploaded.removeAllElements();
+            log.debug("[EndomondoConnector] Upload to Endomondo server completed.");
+            statusListener.pluginStatusChanged(ID, PluginStatus.OK);
         } catch (Exception ex) {
             log.error("[EndomondoConnector] Failed to send data to Endomondo server: " + ex.getMessage());
             ex.printStackTrace();
+            statusListener.pluginStatusChanged(ID, PluginStatus.ERROR);
         } finally {
             try {
                 connection.close();

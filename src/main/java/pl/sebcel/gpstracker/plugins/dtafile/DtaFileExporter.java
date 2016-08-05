@@ -10,6 +10,8 @@ import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
 import pl.sebcel.gpstracker.plugins.GpsTrackerPlugin;
 import pl.sebcel.gpstracker.plugins.PluginRegistry;
+import pl.sebcel.gpstracker.plugins.PluginStatus;
+import pl.sebcel.gpstracker.plugins.PluginStatusListener;
 import pl.sebcel.gpstracker.plugins.TrackListener;
 import pl.sebcel.gpstracker.utils.DateFormat;
 import pl.sebcel.gpstracker.utils.FileUtils;
@@ -23,9 +25,11 @@ import pl.sebcel.gpstracker.utils.Logger;
 public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
 
     private final Logger log = Logger.getLogger();
+    private final static String ID = "DTA";
 
     private PrintStream writer;
     private FileUtils fileUtils;
+    private PluginStatusListener statusListener;
 
     public DtaFileExporter(FileUtils fileUtils) {
         this.fileUtils = fileUtils;
@@ -33,6 +37,8 @@ public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
 
     public void register(PluginRegistry registry) {
         registry.addTrackListener(this);
+        this.statusListener = registry.getPluginStatusListener();
+        statusListener.pluginStatusChanged(ID, PluginStatus.UNINITIALIZED);
     }
 
     public void onTrackCreated(Track track) {
@@ -43,7 +49,9 @@ public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
             FileConnection fconn = (FileConnection) Connector.open(uri);
             fconn.create();
             writer = new PrintStream(fconn.openOutputStream());
+            statusListener.pluginStatusChanged(ID, PluginStatus.OK);
         } catch (Exception ex) {
+            statusListener.pluginStatusChanged(ID, PluginStatus.ERROR);
             log.error("Cannot create PrintStream for track " + track.getId() + ": " + ex.getMessage());
         }
     }
@@ -61,7 +69,9 @@ public class DtaFileExporter implements GpsTrackerPlugin, TrackListener {
 
         try {
             writer.write(dataBytes);
+            statusListener.pluginStatusChanged(ID, PluginStatus.OK);
         } catch (Exception ex) {
+            statusListener.pluginStatusChanged(ID, PluginStatus.ERROR);
             log.debug("Failed to save data to file: " + ex.getMessage());
         }
         writer.flush();

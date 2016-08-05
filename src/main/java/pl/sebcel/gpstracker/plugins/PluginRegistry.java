@@ -2,15 +2,22 @@ package pl.sebcel.gpstracker.plugins;
 
 import java.util.Vector;
 
+import pl.sebcel.gpstracker.AppState;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.utils.Logger;
 
-public class PluginRegistry {
+public class PluginRegistry implements PluginStatusListener {
 
     private final Logger log = Logger.getLogger();
 
     private Vector trackListeners = new Vector();
     private Vector configListeners = new Vector();
+
+    private AppState appState;
+
+    public PluginRegistry(AppState appState) {
+        this.appState = appState;
+    }
 
     public void addTrackListener(TrackListener trackListener) {
         log.debug("[PluginRegistry] Adding track listener: " + trackListener);
@@ -55,4 +62,13 @@ public class PluginRegistry {
         }
         return pluginConfigs;
     }
+
+    public PluginStatusListener getPluginStatusListener() {
+        return this;
+    }
+
+    public void pluginStatusChanged(String pluginId, PluginStatus status) {
+        log.info("[PluginStatusListener] Plugin: " + pluginId + ", status: " + status.getDisplayName());
+        appState.setPluginStatus(pluginId, status);
+    };
 }
