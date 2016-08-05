@@ -10,13 +10,15 @@ public class AppState {
 
     private WorkflowStatus appStatus;
     private GpsStatus gpsStatus;
-    private String info;
+    private String infoLine1;
+    private String infoLine2;
     private Vector listeners = new Vector();
 
     public AppState(WorkflowStatus initialAppStatus, GpsStatus initialGpsStatus) {
         this.appStatus = initialAppStatus;
         this.gpsStatus = initialGpsStatus;
-        this.info = "";
+        this.infoLine1 = "";
+        this.infoLine2 = "";
     }
 
     public void addListener(AppStateChangeListener listener) {
@@ -31,8 +33,12 @@ public class AppState {
         return gpsStatus;
     }
 
-    public String getInfo() {
-        return info;
+    public String getInfoLine1() {
+        return infoLine1;
+    }
+
+    public String getInfoLine2() {
+        return infoLine2;
     }
 
     public void setAppStatus(WorkflowStatus appStatus) {
@@ -45,8 +51,9 @@ public class AppState {
         notifyListeners();
     }
 
-    public void setInfo(String info) {
-        this.info = info;
+    public void setInfo(String infoLine1, String infoLine2) {
+        this.infoLine1 = infoLine1;
+        this.infoLine2 = infoLine2;
         notifyListeners();
     }
 

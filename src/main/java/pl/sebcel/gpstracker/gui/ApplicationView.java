@@ -81,10 +81,11 @@ public class ApplicationView extends Canvas implements AppStateChangeListener {
         g.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_LARGE));
         g.drawString("Status: " + appStatus.getDisplayName(), 5, boxHeight + 20, Graphics.TOP | Graphics.LEFT);
         g.drawString("GPS: " + gpsStatus.getDisplayName(), 5, boxHeight + 40, Graphics.TOP | Graphics.LEFT);
-        g.drawString("Info: " + model.getAppState().getInfo(), 5, boxHeight + 60, Graphics.TOP | Graphics.LEFT);
+        g.drawString("Time: " + model.getAppState().getInfoLine1(), 5, boxHeight + 60, Graphics.TOP | Graphics.LEFT);
+        g.drawString("Distance: " + model.getAppState().getInfoLine2(), 5, boxHeight + 80, Graphics.TOP | Graphics.LEFT);
 
         WorkflowTransition[] availableTransitions = workflow.getAvailableTransitions(appStatus);
-        int i = boxHeight + 80;
+        int i = boxHeight + 100;
         for (int k = 0; k < availableTransitions.length; k++) {
             g.setColor(255, 255, 255);
             if (k == selectedTransition) {
