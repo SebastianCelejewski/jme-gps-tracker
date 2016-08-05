@@ -116,7 +116,7 @@ public class LocationManager implements LocationListener {
         }
 
         if (gpsStatus.equals(GpsStatus.SIGNAL_LOST)) {
-            log.debug("[LocationManager] GPS signal found again.");
+            log.info("[LocationManager] GPS signal found again.");
         }
 
         log.debug("[LocationManager] Handling locationUpdated event: valid reading. Latitude=" + latitude + ", longitude=" + longitude + ", altitude=" + altitude + ", horizontalAccuracy=" + horizontalAccuracy + ", verticalAccuracy=" + verticalAccuracy);
@@ -147,7 +147,7 @@ public class LocationManager implements LocationListener {
         while (!locationFound) {
 
             try {
-                log.debug("[LocationManager] Trying to find location");
+                log.info("[LocationManager] Trying to find location");
                 setGpsStatus(GpsStatus.LOCATING);
 
                 Criteria cr = new Criteria();
@@ -164,7 +164,7 @@ public class LocationManager implements LocationListener {
                 Location location = locationProvider.getLocation(config.getGpsLocationFindTimeout());
                 Date locationManagerInitializationEndTime = new Date();
                 long locationManagerInitializationDuration = (locationManagerInitializationEndTime.getTime() - locationProviderInitializationStartTime.getTime()) / 1000;
-                log.debug("[LocationManager] Location found (" + locationManagerInitializationDuration + " seconds)");
+                log.info("[LocationManager] Location found (" + locationManagerInitializationDuration + " seconds)");
 
                 setGpsStatus(GpsStatus.OK);
                 locationUpdated(locationProvider, location);
@@ -175,7 +175,7 @@ public class LocationManager implements LocationListener {
                 log.debug("[LocationManager] Location listener successfully registered");
 
             } catch (Exception ex) {
-                log.debug("[LocationManager] Failed to find location: " + ex.getClass() + ", " + ex.getMessage());
+                log.error("[LocationManager] Failed to find location: " + ex.getClass() + ", " + ex.getMessage());
                 try {
                     Thread.sleep(config.getGpsLocationFindRetryDelay() * 1000);
                 } catch (InterruptedException e) {
@@ -215,7 +215,7 @@ public class LocationManager implements LocationListener {
         boolean statusIsAppropriateToReportLossOfSignal = gpsStatus.equals(GpsStatus.OK) || gpsStatus.equals(GpsStatus.INVALID_READING);
 
         if (tooLate && statusIsAppropriateToReportLossOfSignal) {
-            log.debug("[LocationManager] Switching to Signal Lost");
+            log.info("[LocationManager] Switching to Signal Lost");
             setGpsStatus(GpsStatus.SIGNAL_LOST);
         }
     }
