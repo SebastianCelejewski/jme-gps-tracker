@@ -16,8 +16,10 @@ import pl.sebcel.gpstracker.GpsTracker;
 import pl.sebcel.gpstracker.model.Track;
 import pl.sebcel.gpstracker.model.TrackPoint;
 import pl.sebcel.gpstracker.plugins.ConfigListener;
+import pl.sebcel.gpstracker.plugins.DataType;
 import pl.sebcel.gpstracker.plugins.GpsTrackerPlugin;
 import pl.sebcel.gpstracker.plugins.PluginConfig;
+import pl.sebcel.gpstracker.plugins.PluginConfigEntry;
 import pl.sebcel.gpstracker.plugins.PluginRegistry;
 import pl.sebcel.gpstracker.plugins.PluginStatus;
 import pl.sebcel.gpstracker.plugins.PluginStatusListener;
@@ -60,7 +62,9 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
         registry.addConfigListener(this);
 
         pluginConfig.setPluginName("Endomondo Connector");
-        pluginConfig.setConfigurationKeys(new String[] { USER_NAME, PASSWORD, AUTHENTICATION_TOKEN });
+        pluginConfig.addConfigurationEntry(new PluginConfigEntry(USER_NAME, DataType.TEXT));
+        pluginConfig.addConfigurationEntry(new PluginConfigEntry(PASSWORD, DataType.HIDDEN));
+        pluginConfig.addConfigurationEntry(new PluginConfigEntry(AUTHENTICATION_TOKEN, DataType.TEXT));
 
         statusListener = registry.getPluginStatusListener();
         statusListener.pluginStatusChanged(ID, PluginStatus.UNINITIALIZED);
