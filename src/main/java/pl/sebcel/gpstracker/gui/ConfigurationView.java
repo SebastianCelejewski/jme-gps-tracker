@@ -10,6 +10,7 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.TextField;
 
 import pl.sebcel.gpstracker.ConfigurationProvider;
+import pl.sebcel.gpstracker.plugins.DataType;
 import pl.sebcel.gpstracker.plugins.PluginConfig;
 
 public class ConfigurationView extends Form {
@@ -65,10 +66,18 @@ public class ConfigurationView extends Form {
             for (int i = 0; i < configurationKeys.length; i++) {
                 String key = configurationKeys[i];
                 String value = pluginConfig.getValue(key);
-                TextField textField = new TextField(key, "", 32, TextField.ANY);
-                textField.setString(value);
-                textFields.addElement(textField);
-                this.append(textField);
+                DataType type = pluginConfig.getType(key);
+                if (type == DataType.TEXT) {
+                    TextField textField = new TextField(key, "", 32, TextField.ANY);
+                    textField.setString(value);
+                    textFields.addElement(textField);
+                    this.append(textField);
+                } else if (type == DataType.HIDDEN) {
+                    TextField textField = new TextField(key, "", 32, TextField.PASSWORD);
+                    textField.setString(value);
+                    textFields.addElement(textField);
+                    this.append(textField);
+                }
             }
         }
     }
