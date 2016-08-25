@@ -79,16 +79,16 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
 
         String authenticationToken = pluginConfig.getValue("Authentication token");
         if (authenticationToken != null && authenticationToken.length() > 0) {
-            log.debug("[EndomondoConnector] Authentication token is provided. Trying to establish connection to Endomondo server using authentication token.");
+            log.info("[EndomondoConnector] Authentication token is provided. Trying to establish connection to Endomondo server using authentication token.");
             connectedToServer = sendConfigureRequest();
             if (connectedToServer) {
-                log.debug("[EndomondoConnector] Connection to Endomondo server has been established successfully using authentication token.");
+                log.info("[EndomondoConnector] Connection to Endomondo server has been established successfully using authentication token.");
             } else {
-                log.debug("[EndomondoConnector] Failed to establish connection to Endomondo server using authentication token. Trying to establish connection to Endomondo server using login and password.");
+                log.info("[EndomondoConnector] Failed to establish connection to Endomondo server using authentication token. Trying to establish connection to Endomondo server using login and password.");
                 connectedToServer = connectToServer();
             }
         } else {
-            log.debug("[EndomondoConnector] Authentication token is not provided. Trying to establish connection to Endomondo server using login and password.");
+            log.info("[EndomondoConnector] Authentication token is not provided. Trying to establish connection to Endomondo server using login and password.");
             connectedToServer = connectToServer();
         }
 
@@ -100,13 +100,13 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
 
         trackPointsToBeUploaded = new Vector();
 
-        log.debug("[EndomondoConnector] Connected to server: " + connectedToServer);
+        log.info("[EndomondoConnector] Connected to server: " + connectedToServer);
     }
 
     private boolean connectToServer() {
         boolean connectedToServer = sendConnectRequest();
         if (connectedToServer) {
-            log.debug("[EndomondoConnector] Connection to Endomondo server has been established successfully using login and password.");
+            log.info("[EndomondoConnector] Connection to Endomondo server has been established successfully using login and password.");
             configurationProvider.updateViewAndStorage();
             sendConfigureRequest();
         } else {
@@ -191,11 +191,17 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             ex.printStackTrace();
             return false;
         } finally {
-            try {
-                connection.close();
-            } catch (IOException e) {
-                // intentional
-            }
+            // JGT-B-3: connection.close() was hanging, so that is why it is now put into a separate thread
+            final HttpConnection connectionToBeClosed = connection;
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        connectionToBeClosed.close();
+                    } catch (IOException e) {
+                        // intentional
+                    }
+                }
+            }).start();
         }
     }
 
@@ -241,11 +247,17 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             ex.printStackTrace();
             return false;
         } finally {
-            try {
-                connection.close();
-            } catch (IOException e) {
-                // intentional
-            }
+            // JGT-B-3: connection.close() was hanging, so that is why it is now put into a separate thread
+            final HttpConnection connectionToBeClosed = connection;
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        connectionToBeClosed.close();
+                    } catch (IOException e) {
+                        // intentional
+                    }
+                }
+            }).start();
         }
     }
 
@@ -300,11 +312,17 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
             ex.printStackTrace();
             statusListener.pluginStatusChanged(ID, PluginStatus.ERROR);
         } finally {
-            try {
-                connection.close();
-            } catch (IOException e) {
-                // intentional
-            }
+            // JGT-B-3: connection.close() was hanging, so that is why it is now put into a separate thread
+            final HttpConnection connectionToBeClosed = connection;
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        connectionToBeClosed.close();
+                    } catch (IOException e) {
+                        // intentional
+                    }
+                }
+            }).start();
         }
     }
 
