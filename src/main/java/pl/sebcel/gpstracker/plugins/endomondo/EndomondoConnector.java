@@ -250,7 +250,7 @@ public class EndomondoConnector implements GpsTrackerPlugin, TrackListener, Conf
     }
 
     private void uploadToEndomondo(Vector trackPoints, boolean thisIsLastBatchOfTrackPoints) {
-        log.debug("[EndomondoConnector] Uploading " + trackPoints.size() + " points to Endomondo server.");
+        log.info("[EndomondoConnector] Uploading " + trackPoints.size() + " points to Endomondo server.");
         if (trackPoints.size() == 0) {
             return;
         }
