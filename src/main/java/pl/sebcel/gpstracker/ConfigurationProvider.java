@@ -65,7 +65,7 @@ public class ConfigurationProvider {
 
     public LocationManagerConfiguration getConfiguration() {
         LocationManagerConfiguration config = new LocationManagerConfiguration();
-        config.setGpsLocationInterval(10);
+        config.setGpsLocationInterval(5);
         config.setGpsHorizontalAccuracyForLocationProvider(500);
         config.setGpsHorizontalAccuracyForTrackPointsFiltering(60);
         config.setGpsLocationFindTimeout(600);

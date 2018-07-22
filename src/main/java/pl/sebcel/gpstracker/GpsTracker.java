@@ -32,7 +32,7 @@ import pl.sebcel.location.LocationManagerConfiguration;
  */
 public class GpsTracker extends MIDlet {
 
-    public final static String version = "0.5";
+    public final static String version = "0.6";
 
     private final Logger log = Logger.getLogger();
 
